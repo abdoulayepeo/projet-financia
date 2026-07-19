@@ -6,7 +6,7 @@ import TransactionFormView from '../views/TransactionFormView.vue'
 import SettingsView from '../views/SettingsView.vue'
 
 export default createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', name: 'dashboard', component: DashboardView },
     { path: '/stats', name: 'stats', component: StatsView },
