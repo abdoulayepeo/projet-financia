@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
+import { useCategoriesStore } from './stores/categories'
 import { useRecurringsStore } from './stores/recurrings'
 import { useTransactionsStore } from './stores/transactions'
 
+const categories = useCategoriesStore()
 const recurrings = useRecurringsStore()
 const transactions = useTransactionsStore()
 
 onMounted(async () => {
+  await categories.load()
   await recurrings.applyDue()
   await transactions.load()
 })

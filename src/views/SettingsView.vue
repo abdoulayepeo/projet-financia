@@ -1,29 +1,76 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { db } from '../db'
+import { db, type Category } from '../db'
 import { useBudgetsStore } from '../stores/budgets'
+import { useCategoriesStore } from '../stores/categories'
 import { useRecurringsStore } from '../stores/recurrings'
 import { useTransactionsStore } from '../stores/transactions'
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../categories'
 import { formatAmount, formatMonth } from '../lib/format'
 import { downloadCsv } from '../lib/csv'
 
 const budgets = useBudgetsStore()
+const cats = useCategoriesStore()
 const recurrings = useRecurringsStore()
 const transactions = useTransactionsStore()
 
 onMounted(() => {
   budgets.load()
+  cats.load()
   recurrings.load()
   transactions.load()
 })
 
+// --- Catégories personnalisées ---
+const cType = ref<'expense' | 'income'>('expense')
+const cName = ref('')
+const cColor = ref('#6366f1')
+
+const shownCategories = computed(() =>
+  cType.value === 'expense' ? cats.expenseCategories : cats.incomeCategories
+)
+
+function isDuplicate(name: string) {
+  return shownCategories.value.some(
+    (c) => c.name.localeCompare(name, 'fr', { sensitivity: 'base' }) === 0
+  )
+}
+
+async function addCategory() {
+  const name = cName.value.trim()
+  if (!name) return
+  if (isDuplicate(name)) {
+    alert('Cette catégorie existe déjà.')
+    return
+  }
+  await cats.add(name, cType.value, cColor.value)
+  cName.value = ''
+}
+
+async function renameCategory(c: Category) {
+  const name = prompt('Nouveau nom :', c.name)?.trim()
+  if (!name || name === c.name) return
+  if (isDuplicate(name)) {
+    alert('Cette catégorie existe déjà.')
+    return
+  }
+  await cats.rename(c.id, name)
+  await Promise.all([transactions.load(), budgets.load(), recurrings.load()])
+}
+
+async function removeCategory(c: Category) {
+  if (confirm(`Supprimer « ${c.name} » ? Ses transactions seront reclassées dans « Autre ».`)) {
+    await cats.remove(c.id)
+    await Promise.all([transactions.load(), budgets.load(), recurrings.load()])
+  }
+}
+
+// --- Budgets ---
 function onBudgetChange(category: string, event: Event) {
   const value = Number((event.target as HTMLInputElement).value)
   budgets.set(category, Number.isFinite(value) && value > 0 ? value : null)
 }
 
-// Formulaire de nouvelle récurrence
+// --- Formulaire de nouvelle récurrence ---
 const rType = ref<'expense' | 'income'>('expense')
 const rAmount = ref<number | null>(null)
 const rCategory = ref('')
@@ -31,7 +78,7 @@ const rDay = ref(1)
 const rNote = ref('')
 
 const rCategories = computed(() =>
-  rType.value === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES
+  rType.value === 'expense' ? cats.expenseCategories : cats.incomeCategories
 )
 
 function setRType(t: 'expense' | 'income') {
@@ -61,6 +108,7 @@ async function removeRecurring(id: number) {
   }
 }
 
+// --- Export CSV ---
 function exportMonth() {
   downloadCsv(transactions.transactions, `financia-${transactions.month}.csv`)
 }
@@ -74,18 +122,60 @@ async function exportAll() {
   <h1>Réglages</h1>
 
   <section class="card">
+    <h2>Catégories</h2>
+    <p class="hint">
+      Personnalise tes catégories : nom et couleur. « Autre » sert de catégorie de repli et ne peut
+      pas être modifiée.
+    </p>
+
+    <div class="type-toggle">
+      <button type="button" :class="{ active: cType === 'expense' }" @click="cType = 'expense'">
+        Dépenses
+      </button>
+      <button type="button" :class="{ active: cType === 'income' }" @click="cType = 'income'">
+        Revenus
+      </button>
+    </div>
+
+    <ul class="rec-list cat-manage-list">
+      <li v-for="c in shownCategories" :key="c.id" class="settings-row">
+        <span class="dot" :style="{ background: c.color }"></span>
+        <span class="cat-name">{{ c.name }}</span>
+        <template v-if="c.name !== 'Autre'">
+          <button type="button" class="tx-delete" aria-label="Renommer" @click="renameCategory(c)">✎</button>
+          <button type="button" class="tx-delete" aria-label="Supprimer" @click="removeCategory(c)">✕</button>
+        </template>
+      </li>
+    </ul>
+
+    <form class="form rec-form" @submit.prevent="addCategory">
+      <div class="cat-add-row">
+        <input
+          v-model="cName"
+          type="text"
+          maxlength="30"
+          required
+          :placeholder="cType === 'expense' ? 'Nouvelle catégorie de dépense…' : 'Nouvelle catégorie de revenu…'"
+        />
+        <input v-model="cColor" type="color" class="color-input" aria-label="Couleur de la catégorie" />
+      </div>
+      <button type="submit" class="submit-btn">Ajouter la catégorie</button>
+    </form>
+  </section>
+
+  <section class="card">
     <h2>Budgets mensuels par catégorie</h2>
     <p class="hint">Fixe un plafond de dépenses : le tableau de bord t'alerte quand tu t'en approches.</p>
-    <div v-for="c in EXPENSE_CATEGORIES" :key="c" class="settings-row">
-      <span>{{ c }}</span>
+    <div v-for="c in cats.expenseCategories" :key="c.id" class="settings-row">
+      <span>{{ c.name }}</span>
       <input
         class="budget-input"
         type="number"
         min="0"
         step="1"
         placeholder="—"
-        :value="budgets.budgets[c] ?? ''"
-        @change="onBudgetChange(c, $event)"
+        :value="budgets.budgets[c.name] ?? ''"
+        @change="onBudgetChange(c.name, $event)"
       />
     </div>
   </section>
@@ -120,7 +210,7 @@ async function exportAll() {
         Catégorie
         <select v-model="rCategory" required>
           <option value="" disabled>Choisir une catégorie…</option>
-          <option v-for="c in rCategories" :key="c" :value="c">{{ c }}</option>
+          <option v-for="c in rCategories" :key="c.id" :value="c.name">{{ c.name }}</option>
         </select>
       </label>
       <label>
