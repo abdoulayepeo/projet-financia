@@ -1,21 +1,41 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { db } from '../db'
 import { useTransactionsStore } from '../stores/transactions'
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../categories'
 
+const route = useRoute()
 const router = useRouter()
 const store = useTransactionsStore()
+
+const editId = route.params.id ? Number(route.params.id) : null
 
 const type = ref<'expense' | 'income'>('expense')
 const amount = ref<number | null>(null)
 const category = ref('')
 const date = ref(new Date().toISOString().slice(0, 10))
 const note = ref('')
+const recurringId = ref<number | undefined>(undefined)
 
 const categories = computed(() =>
   type.value === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES
 )
+
+onMounted(async () => {
+  if (editId === null) return
+  const t = await db.transactions.get(editId)
+  if (!t) {
+    router.replace('/')
+    return
+  }
+  type.value = t.type
+  amount.value = t.amount
+  category.value = t.category
+  date.value = t.date
+  note.value = t.note ?? ''
+  recurringId.value = t.recurringId
+})
 
 function setType(t: 'expense' | 'income') {
   type.value = t
@@ -24,19 +44,26 @@ function setType(t: 'expense' | 'income') {
 
 async function submit() {
   if (!amount.value || amount.value <= 0 || !category.value || !date.value) return
-  await store.add({
+  const data = {
     type: type.value,
     amount: amount.value,
     category: category.value,
     date: date.value,
-    note: note.value.trim() || undefined
-  })
-  router.push('/')
+    note: note.value.trim() || undefined,
+    recurringId: recurringId.value
+  }
+  if (editId !== null) {
+    await store.update({ id: editId, ...data })
+    router.push('/transactions')
+  } else {
+    await store.add(data)
+    router.push('/')
+  }
 }
 </script>
 
 <template>
-  <h1>Nouvelle transaction</h1>
+  <h1>{{ editId !== null ? 'Modifier la transaction' : 'Nouvelle transaction' }}</h1>
 
   <form class="card form" @submit.prevent="submit">
     <div class="type-toggle">
@@ -79,6 +106,8 @@ async function submit() {
       <input v-model="note" type="text" maxlength="100" placeholder="Ex. : courses de la semaine" />
     </label>
 
-    <button type="submit" class="submit-btn">Ajouter</button>
+    <button type="submit" class="submit-btn">
+      {{ editId !== null ? 'Enregistrer' : 'Ajouter' }}
+    </button>
   </form>
 </template>
