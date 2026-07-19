@@ -417,6 +417,28 @@ select:focus {
   cursor: pointer;
 }
 
+/* ---- Gestion des catégories ---- */
+.cat-manage-list {
+  margin-top: 0.75rem;
+}
+
+.cat-add-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cat-add-row input[type='text'] {
+  flex: 1;
+  min-width: 0;
+}
+
+.color-input {
+  width: 3.2rem;
+  height: auto;
+  padding: 0.25rem;
+  cursor: pointer;
+}
+
 /* ---- Statistiques ---- */
 .chart-tall {
   height: 260px;

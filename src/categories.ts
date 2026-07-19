@@ -1,35 +1,26 @@
-export const EXPENSE_CATEGORIES = [
-  'Logement',
-  'Courses',
-  'Transport',
-  'Sorties',
-  'Abonnements',
-  'Études',
-  'Santé',
-  'Shopping',
-  'Autre'
-] as const
+import type { Category } from './db'
 
-export const INCOME_CATEGORIES = [
-  'Salaire',
-  'Bourse',
-  'Aide famille',
-  'Vente',
-  'Autre'
-] as const
+/** Couleur utilisée quand une catégorie n'est pas (ou plus) connue */
+export const FALLBACK_COLOR = '#94a3b8'
 
-const COLORS: Record<string, string> = {
-  Logement: '#6366f1',
-  Courses: '#22c55e',
-  Transport: '#f59e0b',
-  Sorties: '#ec4899',
-  Abonnements: '#8b5cf6',
-  Études: '#06b6d4',
-  Santé: '#ef4444',
-  Shopping: '#f97316',
-  Autre: '#94a3b8'
-}
-
-export function colorFor(category: string): string {
-  return COLORS[category] ?? '#94a3b8'
-}
+/**
+ * Catégories créées à l'initialisation de la base.
+ * « Autre » sert de catégorie de repli : elle ne peut être ni renommée ni
+ * supprimée, et récupère les transactions des catégories supprimées.
+ */
+export const DEFAULT_CATEGORIES: Omit<Category, 'id'>[] = [
+  { name: 'Logement', type: 'expense', color: '#6366f1' },
+  { name: 'Courses', type: 'expense', color: '#22c55e' },
+  { name: 'Transport', type: 'expense', color: '#f59e0b' },
+  { name: 'Sorties', type: 'expense', color: '#ec4899' },
+  { name: 'Abonnements', type: 'expense', color: '#8b5cf6' },
+  { name: 'Études', type: 'expense', color: '#06b6d4' },
+  { name: 'Santé', type: 'expense', color: '#ef4444' },
+  { name: 'Shopping', type: 'expense', color: '#f97316' },
+  { name: 'Autre', type: 'expense', color: FALLBACK_COLOR },
+  { name: 'Salaire', type: 'income', color: '#22c55e' },
+  { name: 'Bourse', type: 'income', color: '#06b6d4' },
+  { name: 'Aide famille', type: 'income', color: '#8b5cf6' },
+  { name: 'Vente', type: 'income', color: '#f59e0b' },
+  { name: 'Autre', type: 'income', color: FALLBACK_COLOR }
+]

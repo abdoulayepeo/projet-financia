@@ -2,18 +2,24 @@
 import { computed, onMounted } from 'vue'
 import { useTransactionsStore } from '../stores/transactions'
 import { useBudgetsStore } from '../stores/budgets'
+import { useCategoriesStore } from '../stores/categories'
 import { formatAmount } from '../lib/format'
-import { colorFor } from '../categories'
 import MonthPicker from '../components/MonthPicker.vue'
 import CategoryChart from '../components/CategoryChart.vue'
 
 const store = useTransactionsStore()
 const budgets = useBudgetsStore()
+const categories = useCategoriesStore()
 
 onMounted(() => {
   store.load()
   budgets.load()
+  categories.load()
 })
+
+const chartItems = computed(() =>
+  store.expensesByCategory.map((c) => ({ ...c, color: categories.colorOf(c.category) }))
+)
 
 const budgetRows = computed(() =>
   Object.entries(budgets.budgets)
@@ -66,12 +72,12 @@ const budgetRows = computed(() =>
     </div>
   </section>
 
-  <section v-if="store.expensesByCategory.length" class="card">
+  <section v-if="chartItems.length" class="card">
     <h2>Dépenses par catégorie</h2>
-    <CategoryChart :data="store.expensesByCategory" />
+    <CategoryChart :data="chartItems" />
     <ul class="cat-list">
-      <li v-for="c in store.expensesByCategory" :key="c.category">
-        <span class="dot" :style="{ background: colorFor(c.category) }"></span>
+      <li v-for="c in chartItems" :key="c.category">
+        <span class="dot" :style="{ background: c.color }"></span>
         <span class="cat-name">{{ c.category }}</span>
         <span class="cat-total">{{ formatAmount(c.total) }}</span>
       </li>
