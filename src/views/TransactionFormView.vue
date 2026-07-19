@@ -3,11 +3,12 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { db } from '../db'
 import { useTransactionsStore } from '../stores/transactions'
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../categories'
+import { useCategoriesStore } from '../stores/categories'
 
 const route = useRoute()
 const router = useRouter()
 const store = useTransactionsStore()
+const cats = useCategoriesStore()
 
 const editId = route.params.id ? Number(route.params.id) : null
 
@@ -19,10 +20,11 @@ const note = ref('')
 const recurringId = ref<number | undefined>(undefined)
 
 const categories = computed(() =>
-  type.value === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES
+  type.value === 'expense' ? cats.expenseCategories : cats.incomeCategories
 )
 
 onMounted(async () => {
+  await cats.load()
   if (editId === null) return
   const t = await db.transactions.get(editId)
   if (!t) {
@@ -92,7 +94,7 @@ async function submit() {
       Catégorie
       <select v-model="category" required>
         <option value="" disabled>Choisir une catégorie…</option>
-        <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+        <option v-for="c in categories" :key="c.id" :value="c.name">{{ c.name }}</option>
       </select>
     </label>
 

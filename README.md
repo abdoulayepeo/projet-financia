@@ -8,6 +8,7 @@ grâce à des statistiques par catégorie.
 
 - ➕ Saisie rapide des revenus et dépenses (montant, catégorie, date, note) et **modification** en touchant une transaction
 - 📊 Tableau de bord mensuel : revenus, dépenses, solde et répartition des dépenses par catégorie (graphique)
+- 🏷️ **Catégories personnalisées** : ajoute, renomme ou supprime tes catégories de dépenses et de revenus, avec leur couleur
 - 🎯 **Budgets mensuels par catégorie** avec barres de progression et alerte de dépassement
 - 🔁 **Transactions récurrentes** (loyer, abonnements…) créées automatiquement chaque mois, rattrapage des mois manqués au démarrage
 - 📈 **Vue annuelle** : revenus et dépenses mois par mois, totaux de l'année
