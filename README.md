@@ -28,6 +28,16 @@ grâce à des statistiques par catégorie.
 | Graphiques | [Chart.js](https://www.chartjs.org/) via vue-chartjs |
 | PWA / Service worker | [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) |
 
+## Application en ligne
+
+L'app est déployée automatiquement sur **GitHub Pages** à chaque merge sur `main`
+(workflow `.github/workflows/deploy.yml`) :
+
+👉 https://abdoulayepeo.github.io/projet-financia/
+
+Ouvre-la sur ton téléphone puis « Ajouter à l'écran d'accueil » pour l'installer
+comme une app native — elle fonctionnera ensuite hors ligne.
+
 ## Démarrer
 
 ```bash
