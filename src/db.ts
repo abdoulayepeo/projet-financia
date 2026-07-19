@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
+import { DEFAULT_CATEGORIES } from './categories'
 
 export interface Transaction {
   id: number
@@ -31,10 +32,19 @@ export interface Recurring {
   lastAppliedMonth: string
 }
 
+export interface Category {
+  id: number
+  name: string
+  type: 'income' | 'expense'
+  /** Couleur affichée dans les graphiques et les listes */
+  color: string
+}
+
 export const db = new Dexie('financia') as Dexie & {
   transactions: EntityTable<Transaction, 'id'>
   budgets: EntityTable<Budget, 'category'>
   recurrings: EntityTable<Recurring, 'id'>
+  categories: EntityTable<Category, 'id'>
 }
 
 db.version(1).stores({
@@ -45,4 +55,19 @@ db.version(2).stores({
   transactions: '++id, date, type, category',
   budgets: 'category',
   recurrings: '++id'
+})
+
+db.version(3)
+  .stores({
+    transactions: '++id, date, type, category',
+    budgets: 'category',
+    recurrings: '++id',
+    categories: '++id, type'
+  })
+  .upgrade((tx) => tx.table('categories').bulkAdd(DEFAULT_CATEGORIES as Category[]))
+
+// Base créée directement en v3 (nouvel utilisateur) : l'upgrade ne tourne pas,
+// les catégories par défaut sont insérées ici.
+db.on('populate', (tx) => {
+  tx.table('categories').bulkAdd(DEFAULT_CATEGORIES as Category[])
 })

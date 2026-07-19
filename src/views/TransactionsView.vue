@@ -2,14 +2,19 @@
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTransactionsStore } from '../stores/transactions'
+import { useCategoriesStore } from '../stores/categories'
 import { formatAmount, formatDay } from '../lib/format'
-import { colorFor } from '../categories'
 import MonthPicker from '../components/MonthPicker.vue'
 import type { Transaction } from '../db'
 
 const router = useRouter()
 const store = useTransactionsStore()
-onMounted(() => store.load())
+const cats = useCategoriesStore()
+
+onMounted(() => {
+  store.load()
+  cats.load()
+})
 
 const groupedByDay = computed(() => {
   const groups = new Map<string, Transaction[]>()
@@ -41,7 +46,7 @@ async function removeTransaction(t: Transaction) {
     <h2 class="day-title">{{ formatDay(date) }}</h2>
     <ul class="tx-list">
       <li v-for="t in items" :key="t.id" class="card tx" @click="edit(t)">
-        <span class="dot" :style="{ background: t.type === 'income' ? '#22c55e' : colorFor(t.category) }"></span>
+        <span class="dot" :style="{ background: t.type === 'income' ? '#22c55e' : cats.colorOf(t.category) }"></span>
         <div class="tx-info">
           <span class="tx-category">{{ t.category }}</span>
           <span v-if="t.note" class="tx-note">{{ t.note }}</span>
