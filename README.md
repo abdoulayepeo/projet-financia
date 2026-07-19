@@ -6,8 +6,12 @@ grâce à des statistiques par catégorie.
 
 ## Fonctionnalités
 
-- ➕ Saisie rapide des revenus et dépenses (montant, catégorie, date, note)
+- ➕ Saisie rapide des revenus et dépenses (montant, catégorie, date, note) et **modification** en touchant une transaction
 - 📊 Tableau de bord mensuel : revenus, dépenses, solde et répartition des dépenses par catégorie (graphique)
+- 🎯 **Budgets mensuels par catégorie** avec barres de progression et alerte de dépassement
+- 🔁 **Transactions récurrentes** (loyer, abonnements…) créées automatiquement chaque mois, rattrapage des mois manqués au démarrage
+- 📈 **Vue annuelle** : revenus et dépenses mois par mois, totaux de l'année
+- 📤 **Export CSV** (mois affiché ou historique complet, compatible Excel)
 - 🧾 Historique des transactions groupées par jour, navigation de mois en mois
 - 📱 **PWA installable** : fonctionne en ligne comme hors ligne
 - 🔒 **Local-first** : les données restent sur ton appareil (IndexedDB), aucun compte requis
@@ -39,16 +43,16 @@ npm run preview    # prévisualiser le build (nécessaire pour tester la PWA)
 
 ```
 src/
-├── db.ts                  # Schéma IndexedDB (Dexie)
-├── categories.ts          # Catégories de revenus/dépenses + couleurs
-├── stores/transactions.ts # Store Pinia (chargement par mois, totaux, stats)
-├── views/                 # Tableau de bord, liste, formulaire d'ajout
-└── components/            # Sélecteur de mois, graphique par catégorie
+├── db.ts          # Schéma IndexedDB (Dexie) : transactions, budgets, récurrences
+├── categories.ts  # Catégories de revenus/dépenses + couleurs
+├── lib/           # Helpers : formatage, mois, export CSV
+├── stores/        # Stores Pinia : transactions, budgets, récurrences
+├── views/         # Accueil, stats annuelles, historique, formulaire, réglages
+└── components/    # Sélecteur de mois, graphique par catégorie
 ```
 
 ## Pistes d'évolution
 
-- Budgets par catégorie avec alertes de dépassement
-- Transactions récurrentes (loyer, abonnements…)
-- Export CSV / sauvegarde
 - Synchronisation multi-appareils via un backend (Django REST)
+- Objectifs d'épargne
+- Import CSV / restauration de sauvegarde

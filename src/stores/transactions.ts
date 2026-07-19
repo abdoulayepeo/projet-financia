@@ -1,10 +1,6 @@
 import { defineStore } from 'pinia'
 import { db, type Transaction } from '../db'
-
-function currentMonth(): string {
-  const now = new Date()
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-}
+import { currentMonth } from '../lib/months'
 
 export const useTransactionsStore = defineStore('transactions', {
   state: () => ({
@@ -47,6 +43,10 @@ export const useTransactionsStore = defineStore('transactions', {
     },
     async add(t: Omit<Transaction, 'id'>) {
       await db.transactions.add(t as Transaction)
+      await this.setMonth(t.date.slice(0, 7))
+    },
+    async update(t: Transaction) {
+      await db.transactions.put(t)
       await this.setMonth(t.date.slice(0, 7))
     },
     async remove(id: number) {

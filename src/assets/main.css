@@ -315,5 +315,113 @@ select:focus {
   background: var(--accent);
   color: #fff;
   font-size: 1.6rem;
-  margin: 0 1rem;
+  margin: 0 0.5rem;
+}
+
+/* ---- Budgets ---- */
+.budget-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
+}
+
+.budget-row:last-child {
+  margin-bottom: 0;
+}
+
+.budget-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.budget-bar {
+  height: 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.budget-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.budget-fill.warn {
+  background: #f59e0b;
+}
+
+.budget-fill.over {
+  background: var(--red);
+}
+
+.budget-alert {
+  color: var(--red);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* ---- Réglages ---- */
+.hint {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.9rem;
+  line-height: 1.5;
+}
+
+.hint.centered {
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+}
+
+.budget-input {
+  width: 6.5rem;
+  text-align: right;
+}
+
+.rec-list {
+  list-style: none;
+  margin-bottom: 1rem;
+}
+
+.rec-form {
+  border-top: 1px solid var(--surface-2);
+  padding-top: 1rem;
+}
+
+.export-btns {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-secondary {
+  background: var(--surface-2);
+  color: var(--text);
+  border: none;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---- Statistiques ---- */
+.chart-tall {
+  height: 260px;
+}
+
+.tx {
+  cursor: pointer;
 }

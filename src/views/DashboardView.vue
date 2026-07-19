@@ -1,13 +1,28 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useTransactionsStore } from '../stores/transactions'
+import { useBudgetsStore } from '../stores/budgets'
 import { formatAmount } from '../lib/format'
 import { colorFor } from '../categories'
 import MonthPicker from '../components/MonthPicker.vue'
 import CategoryChart from '../components/CategoryChart.vue'
 
 const store = useTransactionsStore()
-onMounted(() => store.load())
+const budgets = useBudgetsStore()
+
+onMounted(() => {
+  store.load()
+  budgets.load()
+})
+
+const budgetRows = computed(() =>
+  Object.entries(budgets.budgets)
+    .map(([category, limit]) => {
+      const spent = store.expensesByCategory.find((c) => c.category === category)?.total ?? 0
+      return { category, limit, spent, ratio: spent / limit }
+    })
+    .sort((a, b) => b.ratio - a.ratio)
+)
 </script>
 
 <template>
@@ -28,6 +43,26 @@ onMounted(() => store.load())
       <strong :class="store.balance >= 0 ? 'income' : 'expense'">
         {{ formatAmount(store.balance) }}
       </strong>
+    </div>
+  </section>
+
+  <section v-if="budgetRows.length" class="card">
+    <h2>Budgets</h2>
+    <div v-for="b in budgetRows" :key="b.category" class="budget-row">
+      <div class="budget-head">
+        <span>{{ b.category }}</span>
+        <span :class="{ expense: b.ratio > 1 }">
+          {{ formatAmount(b.spent) }} / {{ formatAmount(b.limit) }}
+        </span>
+      </div>
+      <div class="budget-bar">
+        <div
+          class="budget-fill"
+          :class="{ warn: b.ratio >= 0.8 && b.ratio <= 1, over: b.ratio > 1 }"
+          :style="{ width: Math.min(b.ratio, 1) * 100 + '%' }"
+        ></div>
+      </div>
+      <span v-if="b.ratio > 1" class="budget-alert">⚠️ Budget dépassé !</span>
     </div>
   </section>
 
