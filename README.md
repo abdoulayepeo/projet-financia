@@ -10,6 +10,7 @@ grâce à des statistiques par catégorie.
 - 📊 Tableau de bord mensuel : revenus, dépenses, solde et répartition des dépenses par catégorie (graphique)
 - 🏷️ **Catégories personnalisées** : ajoute, renomme ou supprime tes catégories de dépenses et de revenus, avec leur couleur
 - 🎯 **Budgets mensuels par catégorie** avec barres de progression et alerte de dépassement
+- 🏆 **Objectifs d'épargne** : cagnottes avec montant cible et date limite, montant mensuel conseillé, l'argent mis de côté est prélevé du disponible du mois
 - 🔁 **Transactions récurrentes** (loyer, abonnements…) créées automatiquement chaque mois, rattrapage des mois manqués au démarrage
 - 📈 **Vue annuelle** : revenus et dépenses mois par mois, totaux de l'année
 - 📤 **Export CSV** (mois affiché ou historique complet, compatible Excel)
