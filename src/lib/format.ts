@@ -1,7 +1,15 @@
-const currency = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' })
+import { CURRENCIES, currency } from '../composables/currency'
 
+const formatters: Record<string, Intl.NumberFormat> = Object.fromEntries(
+  CURRENCIES.map((c) => [c.code, new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code })])
+)
+
+/**
+ * Formate un montant dans la devise sélectionnée. Lit `currency.value` :
+ * l'accès réactif fait que les composants se rafraîchissent au changement.
+ */
 export function formatAmount(n: number): string {
-  return currency.format(n)
+  return formatters[currency.value].format(n)
 }
 
 /** `2026-07` → « juillet 2026 » */

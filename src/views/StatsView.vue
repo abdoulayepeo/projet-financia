@@ -41,6 +41,14 @@ function cssVar(name: string) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 }
 
+const savingsByMonth = computed(() => {
+  const arr = Array(12).fill(0)
+  for (const c of goals.contributions) {
+    if (c.date.startsWith(`${year.value}-`)) arr[Number(c.date.slice(5, 7)) - 1] += c.amount
+  }
+  return arr
+})
+
 const chartData = computed(() => {
   // dépend de `theme` pour recalculer les couleurs au changement de thème
   void theme.value
@@ -48,7 +56,8 @@ const chartData = computed(() => {
     labels: MONTH_LABELS,
     datasets: [
       { label: 'Revenus', data: income.value, backgroundColor: cssVar('--income'), borderRadius: 4 },
-      { label: 'Dépenses', data: expense.value, backgroundColor: cssVar('--expense'), borderRadius: 4 }
+      { label: 'Dépenses', data: expense.value, backgroundColor: cssVar('--expense'), borderRadius: 4 },
+      { label: 'Épargne', data: savingsByMonth.value, backgroundColor: cssVar('--primary'), borderRadius: 4 }
     ]
   }
 })
@@ -100,9 +109,14 @@ const balance = computed(() => totalIncome.value - totalExpense.value - savedThi
       <span class="stat-label">Dépenses {{ year }}</span>
       <strong class="expense">{{ formatAmount(totalExpense) }}</strong>
     </div>
-    <div class="card stat stat-balance">
+    <div class="card stat">
+      <span class="stat-label">Épargne {{ year }}</span>
+      <strong style="color: var(--primary)">{{ formatAmount(savedThisYear) }}</strong>
+    </div>
+    <div class="card stat stat-balance stat-half">
       <span class="stat-label">Solde de l'année</span>
       <strong>{{ formatAmount(balance) }}</strong>
+      <span v-if="savedThisYear > 0" class="stat-sub">après épargne</span>
     </div>
   </section>
 </template>

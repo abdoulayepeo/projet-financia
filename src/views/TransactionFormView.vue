@@ -4,11 +4,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { db } from '../db'
 import { useTransactionsStore } from '../stores/transactions'
 import { useCategoriesStore } from '../stores/categories'
+import { useCurrency } from '../composables/currency'
 
 const route = useRoute()
 const router = useRouter()
 const store = useTransactionsStore()
 const cats = useCategoriesStore()
+const { symbol } = useCurrency()
 
 const editId = route.params.id ? Number(route.params.id) : null
 
@@ -86,7 +88,7 @@ async function submit() {
     </div>
 
     <label>
-      Montant (€)
+      Montant ({{ symbol }})
       <input v-model.number="amount" type="number" step="0.01" min="0.01" required placeholder="0,00" />
     </label>
 

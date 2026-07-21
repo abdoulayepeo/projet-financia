@@ -988,3 +988,39 @@ input[type='color']::-webkit-color-swatch {
   font-weight: 600;
   cursor: pointer;
 }
+
+.stat-half {
+  grid-column: auto;
+}
+
+.submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ===== Sélecteur de devise ===== */
+.currency-toggle {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  background: var(--bg-tint);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.25rem;
+}
+.currency-toggle button {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  padding: 0.6rem 0.35rem;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.currency-toggle button.active {
+  background: var(--accent-grad);
+  color: #3a0353;
+}
