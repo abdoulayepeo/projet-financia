@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
+import { nextTick, onMounted, ref, watch } from 'vue'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
+import gsap from 'gsap'
 import {
   Sun,
   Moon,
@@ -12,25 +13,50 @@ import {
 } from 'lucide-vue-next'
 import LogoMark from './components/LogoMark.vue'
 import AppDialog from './components/AppDialog.vue'
+import SplashScreen from './components/SplashScreen.vue'
 import { useTheme } from './composables/useTheme'
 import { useCategoriesStore } from './stores/categories'
 import { useRecurringsStore } from './stores/recurrings'
 import { useTransactionsStore } from './stores/transactions'
 
 const { theme, toggle } = useTheme()
+const route = useRoute()
 const categories = useCategoriesStore()
 const recurrings = useRecurringsStore()
 const transactions = useTransactionsStore()
+
+const showSplash = ref(true)
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+// Anime l'entrée des éléments de la page à chaque navigation.
+function animateContent() {
+  if (reduceMotion) return
+  gsap.from('.content > *', {
+    opacity: 0,
+    y: 14,
+    duration: 0.35,
+    stagger: 0.05,
+    ease: 'power2.out'
+  })
+}
+
+watch(
+  () => route.path,
+  () => nextTick(animateContent)
+)
 
 onMounted(async () => {
   await categories.load()
   await recurrings.applyDue()
   await transactions.load()
+  nextTick(animateContent)
 })
 </script>
 
 <template>
   <div class="app">
+    <SplashScreen v-if="showSplash" @finished="showSplash = false" />
+
     <header class="app-bar">
       <div class="brand">
         <span class="brand-icon"><LogoMark :size="22" variant="tile" /></span>
