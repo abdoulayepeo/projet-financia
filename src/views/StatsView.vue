@@ -2,11 +2,14 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { Bar } from 'vue-chartjs'
 import { Chart, BarElement, CategoryScale, LinearScale, Legend, Tooltip } from 'chart.js'
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { db } from '../db'
 import { formatAmount } from '../lib/format'
+import { useTheme } from '../composables/useTheme'
 
 Chart.register(BarElement, CategoryScale, LinearScale, Legend, Tooltip)
 
+const { theme } = useTheme()
 const year = ref(new Date().getFullYear())
 const income = ref<number[]>(Array(12).fill(0))
 const expense = ref<number[]>(Array(12).fill(0))
@@ -29,23 +32,37 @@ watch(year, load)
 
 const MONTH_LABELS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
 
-const chartData = computed(() => ({
-  labels: MONTH_LABELS,
-  datasets: [
-    { label: 'Revenus', data: income.value, backgroundColor: '#22c55e', borderRadius: 4 },
-    { label: 'Dépenses', data: expense.value, backgroundColor: '#f87171', borderRadius: 4 }
-  ]
-}))
+function cssVar(name: string) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}
 
-const options = {
-  responsive: true,
-  maintainAspectRatio: false,
-  scales: {
-    x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
-    y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
-  },
-  plugins: { legend: { labels: { color: '#f1f5f9' } } }
-} as const
+const chartData = computed(() => {
+  // dépend de `theme` pour recalculer les couleurs au changement de thème
+  void theme.value
+  return {
+    labels: MONTH_LABELS,
+    datasets: [
+      { label: 'Revenus', data: income.value, backgroundColor: cssVar('--income'), borderRadius: 4 },
+      { label: 'Dépenses', data: expense.value, backgroundColor: cssVar('--expense'), borderRadius: 4 }
+    ]
+  }
+})
+
+const options = computed(() => {
+  void theme.value
+  const muted = cssVar('--text-muted')
+  const text = cssVar('--text')
+  const grid = cssVar('--border')
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { grid: { display: false }, ticks: { color: muted } },
+      y: { ticks: { color: muted }, grid: { color: grid } }
+    },
+    plugins: { legend: { labels: { color: text } } }
+  } as const
+})
 
 const totalIncome = computed(() => income.value.reduce((a, b) => a + b, 0))
 const totalExpense = computed(() => expense.value.reduce((a, b) => a + b, 0))
@@ -56,9 +73,9 @@ const balance = computed(() => totalIncome.value - totalExpense.value)
   <h1>Statistiques</h1>
 
   <div class="month-picker">
-    <button type="button" @click="year--" aria-label="Année précédente">‹</button>
+    <button type="button" @click="year--" aria-label="Année précédente"><ChevronLeft :size="20" /></button>
     <span class="month-label">{{ year }}</span>
-    <button type="button" @click="year++" aria-label="Année suivante">›</button>
+    <button type="button" @click="year++" aria-label="Année suivante"><ChevronRight :size="20" /></button>
   </div>
 
   <section class="card">
@@ -79,7 +96,7 @@ const balance = computed(() => totalIncome.value - totalExpense.value)
     </div>
     <div class="card stat stat-balance">
       <span class="stat-label">Solde de l'année</span>
-      <strong :class="balance >= 0 ? 'income' : 'expense'">{{ formatAmount(balance) }}</strong>
+      <strong>{{ formatAmount(balance) }}</strong>
     </div>
   </section>
 </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { formatMonth } from '../lib/format'
 
 const props = defineProps<{ modelValue: string }>()
@@ -13,8 +14,8 @@ function shift(delta: number) {
 
 <template>
   <div class="month-picker">
-    <button type="button" @click="shift(-1)" aria-label="Mois précédent">‹</button>
+    <button type="button" @click="shift(-1)" aria-label="Mois précédent"><ChevronLeft :size="20" /></button>
     <span class="month-label">{{ formatMonth(modelValue) }}</span>
-    <button type="button" @click="shift(1)" aria-label="Mois suivant">›</button>
+    <button type="button" @click="shift(1)" aria-label="Mois suivant"><ChevronRight :size="20" /></button>
   </div>
 </template>

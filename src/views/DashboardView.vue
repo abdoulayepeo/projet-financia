@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import { TrendingUp, TrendingDown } from 'lucide-vue-next'
 import { useTransactionsStore } from '../stores/transactions'
 import { useBudgetsStore } from '../stores/budgets'
 import { useCategoriesStore } from '../stores/categories'
@@ -32,23 +33,20 @@ const budgetRows = computed(() =>
 </script>
 
 <template>
-  <h1>Financia</h1>
   <MonthPicker :model-value="store.month" @update:model-value="store.setMonth" />
 
   <section class="stats">
     <div class="card stat">
-      <span class="stat-label">Revenus</span>
+      <span class="stat-label"><TrendingUp :size="13" /> Revenus</span>
       <strong class="income">{{ formatAmount(store.totalIncome) }}</strong>
     </div>
     <div class="card stat">
-      <span class="stat-label">Dépenses</span>
+      <span class="stat-label"><TrendingDown :size="13" /> Dépenses</span>
       <strong class="expense">{{ formatAmount(store.totalExpense) }}</strong>
     </div>
     <div class="card stat stat-balance">
       <span class="stat-label">Solde du mois</span>
-      <strong :class="store.balance >= 0 ? 'income' : 'expense'">
-        {{ formatAmount(store.balance) }}
-      </strong>
+      <strong>{{ formatAmount(store.balance) }}</strong>
     </div>
   </section>
 

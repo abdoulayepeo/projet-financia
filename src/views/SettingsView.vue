@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { Pencil, Trash2, Download } from 'lucide-vue-next'
 import { db, type Category } from '../db'
 import { useBudgetsStore } from '../stores/budgets'
 import { useCategoriesStore } from '../stores/categories'
@@ -23,7 +24,7 @@ onMounted(() => {
 // --- Catégories personnalisées ---
 const cType = ref<'expense' | 'income'>('expense')
 const cName = ref('')
-const cColor = ref('#6366f1')
+const cColor = ref('#804a8a')
 
 const shownCategories = computed(() =>
   cType.value === 'expense' ? cats.expenseCategories : cats.incomeCategories
@@ -142,8 +143,8 @@ async function exportAll() {
         <span class="dot" :style="{ background: c.color }"></span>
         <span class="cat-name">{{ c.name }}</span>
         <template v-if="c.name !== 'Autre'">
-          <button type="button" class="tx-delete" aria-label="Renommer" @click="renameCategory(c)">✎</button>
-          <button type="button" class="tx-delete" aria-label="Supprimer" @click="removeCategory(c)">✕</button>
+          <button type="button" class="icon-btn" aria-label="Renommer" @click="renameCategory(c)"><Pencil :size="16" /></button>
+          <button type="button" class="icon-btn danger" aria-label="Supprimer" @click="removeCategory(c)"><Trash2 :size="16" /></button>
         </template>
       </li>
     </ul>
@@ -190,10 +191,10 @@ async function exportAll() {
           <span class="tx-category">{{ r.category }}<template v-if="r.note"> — {{ r.note }}</template></span>
           <span class="tx-note">le {{ r.dayOfMonth }} de chaque mois</span>
         </div>
-        <strong :class="r.type === 'income' ? 'income' : 'expense'">
+        <strong class="tx-amount" :class="r.type === 'income' ? 'income' : 'expense'">
           {{ r.type === 'income' ? '+' : '−' }}{{ formatAmount(r.amount) }}
         </strong>
-        <button type="button" class="tx-delete" aria-label="Supprimer" @click="removeRecurring(r.id)">✕</button>
+        <button type="button" class="icon-btn danger" aria-label="Supprimer" @click="removeRecurring(r.id)"><Trash2 :size="16" /></button>
       </li>
     </ul>
 
@@ -229,9 +230,11 @@ async function exportAll() {
     <h2>Exporter en CSV</h2>
     <div class="export-btns">
       <button type="button" class="btn-secondary" @click="exportMonth">
-        {{ formatMonth(transactions.month) }}
+        <Download :size="16" /> {{ formatMonth(transactions.month) }}
       </button>
-      <button type="button" class="btn-secondary" @click="exportAll">Tout l'historique</button>
+      <button type="button" class="btn-secondary" @click="exportAll">
+        <Download :size="16" /> Tout l'historique
+      </button>
     </div>
   </section>
 </template>
