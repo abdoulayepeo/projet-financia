@@ -40,11 +40,35 @@ export interface Category {
   color: string
 }
 
+export interface Goal {
+  id: number
+  name: string
+  /** Montant cible en euros */
+  target: number
+  color: string
+  /** Date limite optionnelle `AAAA-MM-JJ` */
+  deadline?: string
+  /** Date de création `AAAA-MM-JJ` */
+  createdAt: string
+}
+
+export interface Contribution {
+  id: number
+  goalId: number
+  /** Montant : positif = mis de côté, négatif = retiré */
+  amount: number
+  /** Date `AAAA-MM-JJ` — détermine le mois où l'épargne est prélevée */
+  date: string
+  note?: string
+}
+
 export const db = new Dexie('financia') as Dexie & {
   transactions: EntityTable<Transaction, 'id'>
   budgets: EntityTable<Budget, 'category'>
   recurrings: EntityTable<Recurring, 'id'>
   categories: EntityTable<Category, 'id'>
+  goals: EntityTable<Goal, 'id'>
+  contributions: EntityTable<Contribution, 'id'>
 }
 
 db.version(1).stores({
@@ -66,7 +90,16 @@ db.version(3)
   })
   .upgrade((tx) => tx.table('categories').bulkAdd(DEFAULT_CATEGORIES as Category[]))
 
-// Base créée directement en v3 (nouvel utilisateur) : l'upgrade ne tourne pas,
+db.version(4).stores({
+  transactions: '++id, date, type, category',
+  budgets: 'category',
+  recurrings: '++id',
+  categories: '++id, type',
+  goals: '++id',
+  contributions: '++id, goalId, date'
+})
+
+// Base créée directement (nouvel utilisateur) : l'upgrade ne tourne pas,
 // les catégories par défaut sont insérées ici.
 db.on('populate', (tx) => {
   tx.table('categories').bulkAdd(DEFAULT_CATEGORIES as Category[])

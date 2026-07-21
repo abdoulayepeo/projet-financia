@@ -6,10 +6,12 @@ import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { db } from '../db'
 import { formatAmount } from '../lib/format'
 import { useTheme } from '../composables/useTheme'
+import { useGoalsStore } from '../stores/goals'
 
 Chart.register(BarElement, CategoryScale, LinearScale, Legend, Tooltip)
 
 const { theme } = useTheme()
+const goals = useGoalsStore()
 const year = ref(new Date().getFullYear())
 const income = ref<number[]>(Array(12).fill(0))
 const expense = ref<number[]>(Array(12).fill(0))
@@ -27,7 +29,10 @@ async function load() {
   expense.value = exp
 }
 
-onMounted(load)
+onMounted(() => {
+  load()
+  goals.load()
+})
 watch(year, load)
 
 const MONTH_LABELS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
@@ -66,7 +71,8 @@ const options = computed(() => {
 
 const totalIncome = computed(() => income.value.reduce((a, b) => a + b, 0))
 const totalExpense = computed(() => expense.value.reduce((a, b) => a + b, 0))
-const balance = computed(() => totalIncome.value - totalExpense.value)
+const savedThisYear = computed(() => goals.savedInYear(year.value))
+const balance = computed(() => totalIncome.value - totalExpense.value - savedThisYear.value)
 </script>
 
 <template>

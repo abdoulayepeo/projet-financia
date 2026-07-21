@@ -1,22 +1,30 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { TrendingUp, TrendingDown } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
+import { TrendingUp, TrendingDown, Target, ChevronRight } from 'lucide-vue-next'
 import { useTransactionsStore } from '../stores/transactions'
 import { useBudgetsStore } from '../stores/budgets'
 import { useCategoriesStore } from '../stores/categories'
+import { useGoalsStore } from '../stores/goals'
 import { formatAmount } from '../lib/format'
 import MonthPicker from '../components/MonthPicker.vue'
 import CategoryChart from '../components/CategoryChart.vue'
 
+const router = useRouter()
 const store = useTransactionsStore()
 const budgets = useBudgetsStore()
 const categories = useCategoriesStore()
+const goals = useGoalsStore()
 
 onMounted(() => {
   store.load()
   budgets.load()
   categories.load()
+  goals.load()
 })
+
+const savedThisMonth = computed(() => goals.savedInMonth(store.month))
+const available = computed(() => store.balance - savedThisMonth.value)
 
 const chartItems = computed(() =>
   store.expensesByCategory.map((c) => ({ ...c, color: categories.colorOf(c.category) }))
@@ -29,6 +37,13 @@ const budgetRows = computed(() =>
       return { category, limit, spent, ratio: spent / limit }
     })
     .sort((a, b) => b.ratio - a.ratio)
+)
+
+const goalRows = computed(() =>
+  goals.goals.map((g) => {
+    const saved = goals.savedFor(g.id)
+    return { goal: g, saved, ratio: g.target > 0 ? saved / g.target : 0, reached: saved >= g.target }
+  })
 )
 </script>
 
@@ -45,9 +60,47 @@ const budgetRows = computed(() =>
       <strong class="expense">{{ formatAmount(store.totalExpense) }}</strong>
     </div>
     <div class="card stat stat-balance">
-      <span class="stat-label">Solde du mois</span>
-      <strong>{{ formatAmount(store.balance) }}</strong>
+      <span class="stat-label">Disponible ce mois</span>
+      <strong>{{ formatAmount(available) }}</strong>
+      <span v-if="savedThisMonth > 0" class="stat-sub">
+        dont {{ formatAmount(savedThisMonth) }} mis de côté
+      </span>
     </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2><Target :size="16" style="vertical-align: -3px" /> Objectifs</h2>
+      <button type="button" class="link-btn" @click="router.push('/objectifs')">
+        Gérer <ChevronRight :size="15" />
+      </button>
+    </div>
+
+    <template v-if="goalRows.length">
+      <div
+        v-for="r in goalRows"
+        :key="r.goal.id"
+        class="budget-row goal-mini"
+        @click="router.push(`/objectifs/${r.goal.id}`)"
+      >
+        <div class="budget-head">
+          <span>{{ r.goal.name }}</span>
+          <span :class="{ income: r.reached }">
+            {{ formatAmount(r.saved) }} / {{ formatAmount(r.goal.target) }}
+          </span>
+        </div>
+        <div class="budget-bar">
+          <div
+            class="budget-fill"
+            :style="{ width: Math.min(r.ratio, 1) * 100 + '%', background: r.goal.color }"
+          ></div>
+        </div>
+      </div>
+    </template>
+    <p v-else class="hint" style="margin: 0">
+      Épargne pour tes projets (voyage, téléphone, permis…) et suis ta progression.
+      Touche « Gérer » pour créer ton premier objectif.
+    </p>
   </section>
 
   <section v-if="budgetRows.length" class="card">

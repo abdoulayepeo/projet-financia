@@ -833,3 +833,158 @@ input[type='color']::-webkit-color-swatch {
   font-weight: 800;
   letter-spacing: -0.02em;
 }
+
+/* ===== Objectifs d'épargne ===== */
+.stat-sub {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+.card-head h2 {
+  margin: 0;
+}
+
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  background: none;
+  border: none;
+  color: var(--primary);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.goal-card {
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.2s ease;
+}
+.goal-card:active {
+  transform: scale(0.99);
+  border-color: var(--primary);
+}
+
+.goal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+}
+.goal-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+.goal-amounts {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+}
+.goal-badge {
+  color: var(--income);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.goal-badge.big {
+  font-size: 1.05rem;
+  margin: 0.7rem 0 0;
+}
+.goal-hint {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin: 0.55rem 0 0;
+}
+.goal-mini {
+  cursor: pointer;
+}
+.goal-mini:last-child {
+  margin-bottom: 0;
+}
+
+.goal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.3rem;
+  margin: 0 0 1rem;
+}
+.goal-figures {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.7rem;
+}
+.goal-figures strong {
+  font-size: 2rem;
+  font-weight: 800;
+}
+.goal-target {
+  color: var(--text-muted);
+}
+.goal-bar-lg {
+  height: 14px;
+  border-radius: 7px;
+}
+.goal-remaining {
+  color: var(--text-muted);
+  margin: 0.6rem 0 0;
+}
+.goal-deadline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.goal-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+.goal-actions .submit-btn {
+  flex: 1;
+}
+.goal-actions .btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.back-link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.delete-goal {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--expense);
+  border-radius: 12px;
+  padding: 0.75rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
