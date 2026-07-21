@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Trash2 } from 'lucide-vue-next'
 import { useTransactionsStore } from '../stores/transactions'
 import { useCategoriesStore } from '../stores/categories'
 import { formatAmount, formatDay } from '../lib/format'
@@ -46,16 +47,16 @@ async function removeTransaction(t: Transaction) {
     <h2 class="day-title">{{ formatDay(date) }}</h2>
     <ul class="tx-list">
       <li v-for="t in items" :key="t.id" class="card tx" @click="edit(t)">
-        <span class="dot" :style="{ background: t.type === 'income' ? '#22c55e' : cats.colorOf(t.category) }"></span>
+        <span class="dot" :style="{ background: t.type === 'income' ? 'var(--income)' : cats.colorOf(t.category) }"></span>
         <div class="tx-info">
           <span class="tx-category">{{ t.category }}</span>
           <span v-if="t.note" class="tx-note">{{ t.note }}</span>
         </div>
-        <strong :class="t.type === 'income' ? 'income' : 'expense'">
+        <strong class="tx-amount" :class="t.type === 'income' ? 'income' : 'expense'">
           {{ t.type === 'income' ? '+' : '−' }}{{ formatAmount(t.amount) }}
         </strong>
-        <button type="button" class="tx-delete" aria-label="Supprimer" @click.stop="removeTransaction(t)">
-          ✕
+        <button type="button" class="icon-btn danger" aria-label="Supprimer" @click.stop="removeTransaction(t)">
+          <Trash2 :size="17" />
         </button>
       </li>
     </ul>
