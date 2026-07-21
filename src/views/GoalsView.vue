@@ -3,10 +3,12 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Target } from 'lucide-vue-next'
 import { useGoalsStore } from '../stores/goals'
+import { useCurrency } from '../composables/currency'
 import { formatAmount } from '../lib/format'
 
 const router = useRouter()
 const goals = useGoalsStore()
+const { symbol } = useCurrency()
 
 onMounted(() => goals.load())
 
@@ -84,7 +86,7 @@ async function addGoal() {
       <input v-model="name" type="text" maxlength="40" required placeholder="Ex. : Nouveau téléphone" />
     </label>
     <label>
-      Montant à atteindre (€)
+      Montant à atteindre ({{ symbol }})
       <input v-model.number="target" type="number" step="0.01" min="1" required placeholder="0,00" />
     </label>
     <div class="cat-add-row">

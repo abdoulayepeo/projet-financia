@@ -9,12 +9,14 @@ import { useTransactionsStore } from '../stores/transactions'
 import { formatAmount, formatMonth } from '../lib/format'
 import { downloadCsv } from '../lib/csv'
 import { useDialog } from '../composables/dialog'
+import { useCurrency } from '../composables/currency'
 
 const budgets = useBudgetsStore()
 const cats = useCategoriesStore()
 const recurrings = useRecurringsStore()
 const transactions = useTransactionsStore()
 const dialog = useDialog()
+const { currency, setCurrency, currencies, symbol } = useCurrency()
 
 onMounted(() => {
   budgets.load()
@@ -141,6 +143,22 @@ async function exportAll() {
   <h1>Réglages</h1>
 
   <section class="card">
+    <h2>Devise</h2>
+    <p class="hint">Change l’affichage des montants. Les valeurs ne sont pas converties automatiquement.</p>
+    <div class="currency-toggle">
+      <button
+        v-for="c in currencies"
+        :key="c.code"
+        type="button"
+        :class="{ active: currency === c.code }"
+        @click="setCurrency(c.code)"
+      >
+        {{ c.symbol }} · {{ c.label }}
+      </button>
+    </div>
+  </section>
+
+  <section class="card">
     <h2>Catégories</h2>
     <p class="hint">
       Personnalise tes catégories : nom et couleur. « Autre » sert de catégorie de repli et ne peut
@@ -222,7 +240,7 @@ async function exportAll() {
         <button type="button" :class="{ active: rType === 'income' }" @click="setRType('income')">Revenu</button>
       </div>
       <label>
-        Montant (€)
+        Montant ({{ symbol }})
         <input v-model.number="rAmount" type="number" step="0.01" min="0.01" required placeholder="0,00" />
       </label>
       <label>

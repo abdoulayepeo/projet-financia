@@ -4,12 +4,14 @@ import { useRoute, useRouter } from 'vue-router'
 import { ChevronLeft, Trash2 } from 'lucide-vue-next'
 import { useGoalsStore } from '../stores/goals'
 import { useDialog } from '../composables/dialog'
+import { useCurrency } from '../composables/currency'
 import { formatAmount } from '../lib/format'
 
 const route = useRoute()
 const router = useRouter()
 const goals = useGoalsStore()
 const dialog = useDialog()
+const { symbol } = useCurrency()
 
 const id = Number(route.params.id)
 const amount = ref<number | null>(null)
@@ -43,7 +45,17 @@ const deadlineLabel = computed(() => {
 
 async function putAside() {
   if (!amount.value || amount.value <= 0) return
-  await goals.contribute(id, amount.value)
+  const room = remaining.value
+  if (room <= 0) return
+  // On plafonne au montant cible : impossible de dépasser l'objectif.
+  const add = Math.min(amount.value, room)
+  await goals.contribute(id, add)
+  if (amount.value > room) {
+    await dialog.alert({
+      title: 'Objectif atteint 🎉',
+      message: `Seuls ${formatAmount(add)} ont été ajoutés pour atteindre exactement ton objectif.`
+    })
+  }
   amount.value = null
 }
 
@@ -111,12 +123,14 @@ async function deleteGoal() {
       <h2>Mettre de côté</h2>
       <p class="hint">L’argent est prélevé de ton disponible du mois. Tu peux aussi en retirer.</p>
       <label>
-        Montant (€)
+        Montant ({{ symbol }})
         <input v-model.number="amount" type="number" step="0.01" min="0.01" placeholder="0,00" />
       </label>
       <div class="goal-actions">
         <button type="button" class="btn-secondary" :disabled="saved <= 0" @click="withdraw">Retirer</button>
-        <button type="button" class="submit-btn" @click="putAside">Mettre de côté</button>
+        <button type="button" class="submit-btn" :disabled="reached" @click="putAside">
+          {{ reached ? 'Objectif atteint' : 'Mettre de côté' }}
+        </button>
       </div>
     </section>
 
