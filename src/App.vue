@@ -2,7 +2,6 @@
 import { onMounted } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import {
-  Wallet,
   Sun,
   Moon,
   PieChart,
@@ -11,6 +10,7 @@ import {
   ReceiptText,
   Settings
 } from 'lucide-vue-next'
+import LogoMark from './components/LogoMark.vue'
 import { useTheme } from './composables/useTheme'
 import { useCategoriesStore } from './stores/categories'
 import { useRecurringsStore } from './stores/recurrings'
@@ -32,7 +32,7 @@ onMounted(async () => {
   <div class="app">
     <header class="app-bar">
       <div class="brand">
-        <span class="brand-icon"><Wallet :size="18" /></span>
+        <span class="brand-icon"><LogoMark :size="22" variant="tile" /></span>
         Financia
       </div>
       <button
