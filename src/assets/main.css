@@ -454,19 +454,88 @@ label {
 
 input,
 select {
+  width: 100%;
   background: var(--bg-tint);
   border: 1px solid var(--border);
-  border-radius: 11px;
+  border-radius: 12px;
   color: var(--text);
-  padding: 0.75rem 0.85rem;
+  padding: 0.8rem 0.9rem;
   font-size: 1rem;
-  transition: border-color 0.2s ease;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+input:hover,
+select:hover {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
 }
 
 input:focus,
 select:focus {
   outline: none;
   border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent);
+}
+
+/* Select : chevron personnalisé */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a7599' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  cursor: pointer;
+}
+
+/* Nombre : on masque les petites flèches pour un rendu plus net */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Date : icône calendrier lisible selon le thème */
+input[type='date']::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+}
+@media (prefers-color-scheme: dark) {
+  input[type='date']::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+}
+:root[data-theme='dark'] input[type='date']::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+:root[data-theme='light'] input[type='date']::-webkit-calendar-picker-indicator {
+  filter: none;
+}
+
+/* Sélecteur de couleur : pastille propre */
+input[type='color'] {
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+}
+input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+input[type='color']::-webkit-color-swatch {
+  border: none;
+  border-radius: 9px;
 }
 
 .submit-btn {
@@ -564,9 +633,10 @@ select:focus {
 }
 
 .color-input {
-  width: 3.2rem;
-  height: auto;
-  padding: 0.25rem;
+  width: 3.4rem;
+  height: 3rem;
+  flex-shrink: 0;
+  padding: 0;
   cursor: pointer;
 }
 
@@ -622,4 +692,107 @@ select:focus {
 
 .nav-add:active .nav-add-btn {
   transform: scale(0.92);
+}
+
+/* ===== Modale ===== */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(15, 4, 22, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+.dialog-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 1.4rem;
+  box-shadow: 0 26px 60px -20px rgba(0, 0, 0, 0.65);
+}
+
+.dialog-title {
+  font-size: 1.12rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.5rem;
+  text-wrap: balance;
+}
+
+.dialog-msg {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.dialog-input {
+  margin-top: 1rem;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.4rem;
+}
+
+.dlg-cancel,
+.dlg-ok {
+  border: none;
+  border-radius: 12px;
+  padding: 0.65rem 1.1rem;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.2s ease;
+}
+
+.dlg-cancel {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.dlg-ok {
+  background: var(--accent-grad);
+  color: #3a0353;
+}
+
+.dlg-ok.danger {
+  background: var(--expense);
+  color: #fff;
+}
+
+.dlg-cancel:active,
+.dlg-ok:active {
+  transform: scale(0.96);
+}
+
+.dlg-enter-active,
+.dlg-leave-active {
+  transition: opacity 0.18s ease;
+}
+.dlg-enter-from,
+.dlg-leave-to {
+  opacity: 0;
+}
+.dlg-enter-active .dialog-card {
+  transition: transform 0.2s ease;
+}
+.dlg-enter-from .dialog-card {
+  transform: translateY(10px) scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dlg-enter-active,
+  .dlg-leave-active,
+  .dlg-enter-active .dialog-card {
+    transition: none;
+  }
 }

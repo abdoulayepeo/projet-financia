@@ -8,11 +8,13 @@ import { useRecurringsStore } from '../stores/recurrings'
 import { useTransactionsStore } from '../stores/transactions'
 import { formatAmount, formatMonth } from '../lib/format'
 import { downloadCsv } from '../lib/csv'
+import { useDialog } from '../composables/dialog'
 
 const budgets = useBudgetsStore()
 const cats = useCategoriesStore()
 const recurrings = useRecurringsStore()
 const transactions = useTransactionsStore()
+const dialog = useDialog()
 
 onMounted(() => {
   budgets.load()
@@ -40,7 +42,7 @@ async function addCategory() {
   const name = cName.value.trim()
   if (!name) return
   if (isDuplicate(name)) {
-    alert('Cette catégorie existe déjà.')
+    await dialog.alert({ title: 'Nom déjà utilisé', message: 'Cette catégorie existe déjà.' })
     return
   }
   await cats.add(name, cType.value, cColor.value)
@@ -48,10 +50,16 @@ async function addCategory() {
 }
 
 async function renameCategory(c: Category) {
-  const name = prompt('Nouveau nom :', c.name)?.trim()
+  const input = await dialog.prompt({
+    title: 'Renommer la catégorie',
+    value: c.name,
+    placeholder: 'Nom de la catégorie',
+    confirmLabel: 'Renommer'
+  })
+  const name = input?.trim()
   if (!name || name === c.name) return
   if (isDuplicate(name)) {
-    alert('Cette catégorie existe déjà.')
+    await dialog.alert({ title: 'Nom déjà utilisé', message: 'Cette catégorie existe déjà.' })
     return
   }
   await cats.rename(c.id, name)
@@ -59,7 +67,13 @@ async function renameCategory(c: Category) {
 }
 
 async function removeCategory(c: Category) {
-  if (confirm(`Supprimer « ${c.name} » ? Ses transactions seront reclassées dans « Autre ».`)) {
+  const ok = await dialog.confirm({
+    title: `Supprimer « ${c.name} » ?`,
+    message: 'Ses transactions seront reclassées dans « Autre ».',
+    confirmLabel: 'Supprimer',
+    danger: true
+  })
+  if (ok) {
     await cats.remove(c.id)
     await Promise.all([transactions.load(), budgets.load(), recurrings.load()])
   }
@@ -104,9 +118,13 @@ async function addRecurring() {
 }
 
 async function removeRecurring(id: number) {
-  if (confirm('Supprimer cette récurrence ? (les transactions déjà créées sont conservées)')) {
-    await recurrings.remove(id)
-  }
+  const ok = await dialog.confirm({
+    title: 'Supprimer cette récurrence ?',
+    message: 'Les transactions déjà créées sont conservées.',
+    confirmLabel: 'Supprimer',
+    danger: true
+  })
+  if (ok) await recurrings.remove(id)
 }
 
 // --- Export CSV ---
