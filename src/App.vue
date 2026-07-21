@@ -11,6 +11,7 @@ import {
   Settings
 } from 'lucide-vue-next'
 import LogoMark from './components/LogoMark.vue'
+import AppDialog from './components/AppDialog.vue'
 import { useTheme } from './composables/useTheme'
 import { useCategoriesStore } from './stores/categories'
 import { useRecurringsStore } from './stores/recurrings'
@@ -71,5 +72,7 @@ onMounted(async () => {
         <span>Réglages</span>
       </RouterLink>
     </nav>
+
+    <AppDialog />
   </div>
 </template>

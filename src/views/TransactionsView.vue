@@ -6,11 +6,13 @@ import { useTransactionsStore } from '../stores/transactions'
 import { useCategoriesStore } from '../stores/categories'
 import { formatAmount, formatDay } from '../lib/format'
 import MonthPicker from '../components/MonthPicker.vue'
+import { useDialog } from '../composables/dialog'
 import type { Transaction } from '../db'
 
 const router = useRouter()
 const store = useTransactionsStore()
 const cats = useCategoriesStore()
+const dialog = useDialog()
 
 onMounted(() => {
   store.load()
@@ -32,9 +34,13 @@ function edit(t: Transaction) {
 }
 
 async function removeTransaction(t: Transaction) {
-  if (confirm(`Supprimer « ${t.category} — ${formatAmount(t.amount)} » ?`)) {
-    await store.remove(t.id)
-  }
+  const ok = await dialog.confirm({
+    title: 'Supprimer cette transaction ?',
+    message: `${t.category} — ${formatAmount(t.amount)}`,
+    confirmLabel: 'Supprimer',
+    danger: true
+  })
+  if (ok) await store.remove(t.id)
 }
 </script>
 
