@@ -11,7 +11,6 @@ import {
   ReceiptText,
   Settings
 } from 'lucide-vue-next'
-import { WifiOff } from 'lucide-vue-next'
 import LogoMark from './components/LogoMark.vue'
 import AppDialog from './components/AppDialog.vue'
 import AppToast from './components/AppToast.vue'
@@ -29,10 +28,6 @@ const transactions = useTransactionsStore()
 
 const showSplash = ref(true)
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-const online = ref(navigator.onLine)
-window.addEventListener('online', () => (online.value = true))
-window.addEventListener('offline', () => (online.value = false))
 
 // Anime l'entrée des éléments de la page à chaque navigation.
 function animateContent() {
@@ -78,12 +73,6 @@ onMounted(async () => {
         <Moon v-else :size="18" />
       </button>
     </header>
-
-    <Transition name="banner">
-      <div v-if="!online" class="offline-banner">
-        <WifiOff :size="14" /> Hors ligne — tes données restent sur ton appareil
-      </div>
-    </Transition>
 
     <main class="content">
       <RouterView />

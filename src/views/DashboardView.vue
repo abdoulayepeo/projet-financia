@@ -26,9 +26,23 @@ onMounted(() => {
 const savedThisMonth = computed(() => goals.savedInMonth(store.month))
 const available = computed(() => store.balance - savedThisMonth.value)
 
-const chartItems = computed(() =>
-  store.expensesByCategory.map((c) => ({ ...c, color: categories.colorOf(c.category) }))
-)
+// Répartition des sorties du mois : dépenses par catégorie + épargne, avec %.
+const EPARGNE_COLOR = '#a05fae'
+
+const outflow = computed(() => {
+  const items = store.expensesByCategory.map((c) => ({
+    category: c.category,
+    total: c.total,
+    color: categories.colorOf(c.category)
+  }))
+  if (savedThisMonth.value > 0) {
+    items.push({ category: 'Épargne', total: savedThisMonth.value, color: EPARGNE_COLOR })
+  }
+  const sum = items.reduce((s, i) => s + i.total, 0)
+  return items
+    .map((i) => ({ ...i, pct: sum > 0 ? Math.round((i.total / sum) * 100) : 0 }))
+    .sort((a, b) => b.total - a.total)
+})
 
 const budgetRows = computed(() =>
   Object.entries(budgets.budgets)
@@ -123,20 +137,21 @@ const goalRows = computed(() =>
     </div>
   </section>
 
-  <section v-if="chartItems.length" class="card">
-    <h2>Dépenses par catégorie</h2>
-    <CategoryChart :data="chartItems" />
+  <section v-if="outflow.length" class="card">
+    <h2>Où part ton argent</h2>
+    <CategoryChart :data="outflow" />
     <ul class="cat-list">
-      <li v-for="c in chartItems" :key="c.category">
+      <li v-for="c in outflow" :key="c.category">
         <span class="dot" :style="{ background: c.color }"></span>
         <span class="cat-name">{{ c.category }}</span>
+        <span class="cat-pct">{{ c.pct }} %</span>
         <span class="cat-total">{{ formatAmount(c.total) }}</span>
       </li>
     </ul>
   </section>
 
   <p v-else class="empty">
-    Aucune dépense ce mois-ci.<br />
+    Aucune dépense ni épargne ce mois-ci.<br />
     Ajoute ta première transaction avec le bouton ＋
   </p>
 </template>

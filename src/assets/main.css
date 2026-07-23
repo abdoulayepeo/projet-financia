@@ -283,9 +283,19 @@ h2 {
   flex: 1;
 }
 
+.cat-pct {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 2.6rem;
+  text-align: right;
+}
+
 .cat-total {
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
+  min-width: 4.5rem;
+  text-align: right;
 }
 
 /* ===== Budgets ===== */
@@ -385,6 +395,12 @@ h2 {
 
 .tx-category {
   font-weight: 500;
+}
+
+.save-ic {
+  vertical-align: -2px;
+  margin-right: 0.3rem;
+  color: var(--primary);
 }
 
 .tx-amount {
@@ -1037,31 +1053,6 @@ input[type='color']::-webkit-color-swatch {
   color: #3a0353;
 }
 
-/* ===== Bandeau hors-ligne ===== */
-.offline-banner {
-  position: sticky;
-  top: 0;
-  z-index: 15;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #3a0353;
-  background: var(--accent-soft);
-}
-.banner-enter-active,
-.banner-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.banner-enter-from,
-.banner-leave-to {
-  opacity: 0;
-  transform: translateY(-100%);
-}
-
 /* ===== Toast ===== */
 .toast {
   position: fixed;
@@ -1095,8 +1086,6 @@ input[type='color']::-webkit-color-swatch {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .banner-enter-active,
-  .banner-leave-active,
   .toast-enter-active,
   .toast-leave-active {
     transition: none;
