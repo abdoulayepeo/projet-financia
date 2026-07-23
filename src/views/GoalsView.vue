@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { Target } from 'lucide-vue-next'
 import { useGoalsStore } from '../stores/goals'
 import { useCurrency } from '../composables/currency'
+import { toast } from '../composables/toast'
 import { formatAmount } from '../lib/format'
 
 const router = useRouter()
@@ -38,6 +39,7 @@ async function addGoal() {
     color: color.value,
     deadline: deadline.value || undefined
   })
+  toast('Objectif créé')
   name.value = ''
   target.value = null
   color.value = '#f59e51'

@@ -5,6 +5,7 @@ import { ChevronLeft, Trash2 } from 'lucide-vue-next'
 import { useGoalsStore } from '../stores/goals'
 import { useDialog } from '../composables/dialog'
 import { useCurrency } from '../composables/currency'
+import { toast } from '../composables/toast'
 import { formatAmount } from '../lib/format'
 
 const route = useRoute()
@@ -50,6 +51,7 @@ async function putAside() {
   // On plafonne au montant cible : impossible de dépasser l'objectif.
   const add = Math.min(amount.value, room)
   await goals.contribute(id, add)
+  toast('Mis de côté')
   if (amount.value > room) {
     await dialog.alert({
       title: 'Objectif atteint 🎉',
@@ -64,6 +66,7 @@ async function withdraw() {
   const take = Math.min(amount.value, saved.value)
   if (take <= 0) return
   await goals.contribute(id, -take)
+  toast('Retiré de la cagnotte')
   amount.value = null
 }
 
