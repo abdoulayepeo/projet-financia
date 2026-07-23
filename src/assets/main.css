@@ -6,17 +6,17 @@
   --surface: #2a1339;
   --surface-2: #3a1d4d;
   --text: #f5eef8;
-  --text-muted: #b9a3c9;
+  --text-muted: #cdbadb;
   --border: rgba(255, 255, 255, 0.08);
   --shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
 
-  --primary: #a05fae;
+  --primary: #b478c2;
   --primary-strong: #804a8a;
   --accent: #f59e51;
   --accent-soft: #f8d299;
 
   --income: #34d399;
-  --expense: #fb7185;
+  --expense: #ff8ba0;
 
   --brand-grad: linear-gradient(135deg, #804a8a 0%, #3a0353 100%);
   --accent-grad: linear-gradient(135deg, #f8d299 0%, #f59e51 100%);
@@ -228,7 +228,7 @@ h2 {
 }
 
 .stat-balance .stat-label {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .stat-balance strong {
@@ -337,12 +337,22 @@ h2 {
 
 /* ===== Liste des transactions ===== */
 .day-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
   color: var(--text-muted);
   font-size: 0.85rem;
   font-weight: 600;
   text-transform: capitalize;
   margin-bottom: 0.5rem;
-  padding-left: 0.25rem;
+  padding: 0 0.25rem;
+}
+
+.day-net {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-transform: none;
 }
 
 .tx-list {
@@ -393,12 +403,14 @@ h2 {
 .icon-btn {
   display: grid;
   place-items: center;
+  min-width: 44px;
+  min-height: 44px;
   background: none;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
   padding: 0.3rem;
-  border-radius: 8px;
+  border-radius: 10px;
   transition: color 0.15s ease, background 0.15s ease;
 }
 
@@ -836,7 +848,7 @@ input[type='color']::-webkit-color-swatch {
 
 /* ===== Objectifs d'épargne ===== */
 .stat-sub {
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 0.75rem;
   font-weight: 500;
 }
@@ -1023,4 +1035,70 @@ input[type='color']::-webkit-color-swatch {
 .currency-toggle button.active {
   background: var(--accent-grad);
   color: #3a0353;
+}
+
+/* ===== Bandeau hors-ligne ===== */
+.offline-banner {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #3a0353;
+  background: var(--accent-soft);
+}
+.banner-enter-active,
+.banner-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.banner-enter-from,
+.banner-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.6rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+}
+.toast svg {
+  color: var(--income);
+}
+.toast-enter-active,
+.toast-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(12px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner-enter-active,
+  .banner-leave-active,
+  .toast-enter-active,
+  .toast-leave-active {
+    transition: none;
+  }
 }

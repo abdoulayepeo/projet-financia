@@ -11,16 +11,16 @@ export const FALLBACK_COLOR = '#94a3b8'
 export const DEFAULT_CATEGORIES: Omit<Category, 'id'>[] = [
   { name: 'Logement', type: 'expense', color: '#6366f1' },
   { name: 'Courses', type: 'expense', color: '#22c55e' },
-  { name: 'Transport', type: 'expense', color: '#f59e0b' },
+  { name: 'Transport', type: 'expense', color: '#0ea5e9' },
   { name: 'Sorties', type: 'expense', color: '#ec4899' },
   { name: 'Abonnements', type: 'expense', color: '#8b5cf6' },
   { name: 'Études', type: 'expense', color: '#06b6d4' },
   { name: 'Santé', type: 'expense', color: '#ef4444' },
-  { name: 'Shopping', type: 'expense', color: '#f97316' },
+  { name: 'Shopping', type: 'expense', color: '#d946ef' },
   { name: 'Autre', type: 'expense', color: FALLBACK_COLOR },
   { name: 'Salaire', type: 'income', color: '#22c55e' },
   { name: 'Bourse', type: 'income', color: '#06b6d4' },
   { name: 'Aide famille', type: 'income', color: '#8b5cf6' },
-  { name: 'Vente', type: 'income', color: '#f59e0b' },
+  { name: 'Vente', type: 'income', color: '#14b8a6' },
   { name: 'Autre', type: 'income', color: FALLBACK_COLOR }
 ]

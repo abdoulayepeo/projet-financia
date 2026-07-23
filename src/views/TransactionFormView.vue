@@ -5,6 +5,7 @@ import { db } from '../db'
 import { useTransactionsStore } from '../stores/transactions'
 import { useCategoriesStore } from '../stores/categories'
 import { useCurrency } from '../composables/currency'
+import { toast } from '../composables/toast'
 
 const route = useRoute()
 const router = useRouter()
@@ -58,9 +59,11 @@ async function submit() {
   }
   if (editId !== null) {
     await store.update({ id: editId, ...data })
+    toast('Transaction modifiée')
     router.push('/transactions')
   } else {
     await store.add(data)
+    toast('Transaction ajoutée')
     router.push('/')
   }
 }

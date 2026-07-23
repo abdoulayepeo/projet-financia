@@ -29,6 +29,10 @@ const groupedByDay = computed(() => {
   return [...groups.entries()].sort((a, b) => b[0].localeCompare(a[0]))
 })
 
+function dayNet(items: Transaction[]): number {
+  return items.reduce((sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount), 0)
+}
+
 function edit(t: Transaction) {
   router.push(`/modifier/${t.id}`)
 }
@@ -36,7 +40,7 @@ function edit(t: Transaction) {
 async function removeTransaction(t: Transaction) {
   const ok = await dialog.confirm({
     title: 'Supprimer cette transaction ?',
-    message: `${t.category} — ${formatAmount(t.amount)}`,
+    message: `${t.note || t.category} — ${formatAmount(t.amount)}`,
     confirmLabel: 'Supprimer',
     danger: true
   })
@@ -50,19 +54,24 @@ async function removeTransaction(t: Transaction) {
   <p v-if="store.transactions.length" class="hint centered">Touche une transaction pour la modifier.</p>
 
   <section v-for="[date, items] in groupedByDay" :key="date" class="day-group">
-    <h2 class="day-title">{{ formatDay(date) }}</h2>
+    <h2 class="day-title">
+      {{ formatDay(date) }}
+      <span class="day-net" :class="dayNet(items) >= 0 ? 'income' : 'expense'">
+        {{ dayNet(items) >= 0 ? '+' : '' }}{{ formatAmount(dayNet(items)) }}
+      </span>
+    </h2>
     <ul class="tx-list">
       <li v-for="t in items" :key="t.id" class="card tx" @click="edit(t)">
         <span class="dot" :style="{ background: t.type === 'income' ? 'var(--income)' : cats.colorOf(t.category) }"></span>
         <div class="tx-info">
-          <span class="tx-category">{{ t.category }}</span>
-          <span v-if="t.note" class="tx-note">{{ t.note }}</span>
+          <span class="tx-category">{{ t.note || t.category }}</span>
+          <span v-if="t.note" class="tx-note">{{ t.category }}</span>
         </div>
         <strong class="tx-amount" :class="t.type === 'income' ? 'income' : 'expense'">
           {{ t.type === 'income' ? '+' : '−' }}{{ formatAmount(t.amount) }}
         </strong>
-        <button type="button" class="icon-btn danger" aria-label="Supprimer" @click.stop="removeTransaction(t)">
-          <Trash2 :size="17" />
+        <button type="button" class="icon-btn danger" aria-label="Supprimer la transaction" @click.stop="removeTransaction(t)">
+          <Trash2 :size="18" />
         </button>
       </li>
     </ul>

@@ -1,15 +1,36 @@
-import { CURRENCIES, currency } from '../composables/currency'
+import { currency, type CurrencyCode } from '../composables/currency'
 
-const formatters: Record<string, Intl.NumberFormat> = Object.fromEntries(
-  CURRENCIES.map((c) => [c.code, new Intl.NumberFormat(c.locale, { style: 'currency', currency: c.code })])
-)
+// Format maîtrisé : le symbole est cohérent partout (« FCFA », jamais « XOF »).
+const CONFIG: Record<CurrencyCode, { locale: string; decimals: number; symbol: string; before: boolean }> = {
+  EUR: { locale: 'fr-FR', decimals: 2, symbol: '€', before: false },
+  USD: { locale: 'en-US', decimals: 2, symbol: '$', before: true },
+  XOF: { locale: 'fr-FR', decimals: 0, symbol: 'FCFA', before: false }
+}
+
+const nfCache: Partial<Record<CurrencyCode, Intl.NumberFormat>> = {}
+
+function numberFor(code: CurrencyCode): Intl.NumberFormat {
+  if (!nfCache[code]) {
+    const c = CONFIG[code]
+    nfCache[code] = new Intl.NumberFormat(c.locale, {
+      minimumFractionDigits: c.decimals,
+      maximumFractionDigits: c.decimals
+    })
+  }
+  return nfCache[code]!
+}
 
 /**
  * Formate un montant dans la devise sélectionnée. Lit `currency.value` :
  * l'accès réactif fait que les composants se rafraîchissent au changement.
  */
 export function formatAmount(n: number): string {
-  return formatters[currency.value].format(n)
+  const code = currency.value
+  const c = CONFIG[code]
+  const sign = n < 0 ? '-' : ''
+  const num = numberFor(code).format(Math.abs(n))
+  const body = c.before ? `${c.symbol}${num}` : `${num} ${c.symbol}`
+  return sign + body
 }
 
 /** `2026-07` → « juillet 2026 » */

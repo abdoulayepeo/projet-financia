@@ -22,7 +22,7 @@ const options = {
   responsive: true,
   maintainAspectRatio: false,
   cutout: '65%',
-  plugins: { legend: { display: false } }
+  plugins: { legend: { display: false }, tooltip: { enabled: false } }
 } as const
 </script>
 

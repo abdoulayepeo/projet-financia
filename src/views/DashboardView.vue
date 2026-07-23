@@ -119,7 +119,7 @@ const goalRows = computed(() =>
           :style="{ width: Math.min(b.ratio, 1) * 100 + '%' }"
         ></div>
       </div>
-      <span v-if="b.ratio > 1" class="budget-alert">⚠️ Budget dépassé !</span>
+      <span v-if="b.ratio > 1" class="budget-alert">⚠️ Dépassé de +{{ formatAmount(b.spent - b.limit) }}</span>
     </div>
   </section>
 
