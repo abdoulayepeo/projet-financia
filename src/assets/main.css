@@ -248,6 +248,99 @@ h2 {
   color: #fff;
 }
 
+/* ===== Carte héros du disponible (Accueil) : fusionne solde + revenus/dépenses ===== */
+.balance-hero {
+  background: var(--brand-grad);
+  border: none;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.balance-hero::after {
+  content: '';
+  position: absolute;
+  right: -30px;
+  top: -30px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 158, 81, 0.35), transparent 70%);
+  pointer-events: none;
+}
+
+.balance-hero > * {
+  position: relative;
+}
+
+.balance-hero .stat-label {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.balance-hero-amount {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.balance-hero-sub {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.balance-hero-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.16);
+  margin: 0.75rem 0 0.15rem;
+}
+
+.balance-hero-split {
+  display: flex;
+}
+
+.balance-hero-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-top: 0.6rem;
+}
+
+.balance-hero-item + .balance-hero-item {
+  margin-left: 1rem;
+  padding-left: 1rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.balance-hero-item-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.balance-hero-item strong {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.balance-hero-item strong.income {
+  color: #7ef0c2;
+}
+
+.balance-hero-item strong.expense {
+  color: #ffb0c1;
+}
+
 .stat-label {
   color: var(--text-muted);
   font-size: 0.72rem;

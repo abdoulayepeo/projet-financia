@@ -69,14 +69,16 @@ const goalRows = computed(() =>
 
   <!-- Squelettes pendant le premier chargement -->
   <template v-if="!ready">
-    <section class="stats">
-      <div class="card stat"><Skeleton width="4rem" height="0.7rem" /><Skeleton width="7rem" height="1.4rem" /></div>
-      <div class="card stat"><Skeleton width="4rem" height="0.7rem" /><Skeleton width="7rem" height="1.4rem" /></div>
-      <div class="card stat stat-balance" style="gap: 0.6rem">
-        <Skeleton width="7rem" height="0.7rem" />
-        <Skeleton width="60%" height="1.9rem" />
+    <div class="card balance-hero" style="background: var(--surface-2)">
+      <Skeleton width="7rem" height="0.7rem" />
+      <Skeleton width="60%" height="1.9rem" />
+      <Skeleton width="45%" height="0.8rem" />
+      <div class="balance-hero-divider"></div>
+      <div style="display: flex; gap: 1rem">
+        <Skeleton width="45%" height="0.9rem" />
+        <Skeleton width="45%" height="0.9rem" />
       </div>
-    </section>
+    </div>
     <div class="card">
       <Skeleton width="6rem" height="1.1rem" />
       <div style="margin-top: 1rem"><Skeleton block height="0.9rem" /></div>
@@ -90,21 +92,23 @@ const goalRows = computed(() =>
 
   <!-- Vraie interface -->
   <template v-else>
-    <section class="stats">
-      <div class="card stat">
-        <span class="stat-label"><TrendingUp :size="13" /> Revenus</span>
-        <strong class="income">{{ formatAmount(store.totalIncome) }}</strong>
-      </div>
-      <div class="card stat">
-        <span class="stat-label"><TrendingDown :size="13" /> Dépenses</span>
-        <strong class="expense">{{ formatAmount(store.totalExpense) }}</strong>
-      </div>
-      <div class="card stat stat-balance">
-        <span class="stat-label">Disponible ce mois</span>
-        <strong>{{ formatAmount(available) }}</strong>
-        <span v-if="savedThisMonth > 0" class="stat-sub">
-          dont {{ formatAmount(savedThisMonth) }} mis de côté
-        </span>
+    <section class="card balance-hero">
+      <span class="stat-label">Disponible ce mois</span>
+      <strong class="balance-hero-amount">{{ formatAmount(available) }}</strong>
+      <span v-if="savedThisMonth > 0" class="balance-hero-sub">
+        dont {{ formatAmount(savedThisMonth) }} mis de côté
+      </span>
+
+      <div class="balance-hero-divider"></div>
+      <div class="balance-hero-split">
+        <div class="balance-hero-item">
+          <span class="balance-hero-item-label"><TrendingUp :size="12" /> Revenus</span>
+          <strong class="income">{{ formatAmount(store.totalIncome) }}</strong>
+        </div>
+        <div class="balance-hero-item">
+          <span class="balance-hero-item-label"><TrendingDown :size="12" /> Dépenses</span>
+          <strong class="expense">{{ formatAmount(store.totalExpense) }}</strong>
+        </div>
       </div>
     </section>
 
