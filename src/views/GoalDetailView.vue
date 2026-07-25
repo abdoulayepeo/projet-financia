@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChevronLeft, Trash2 } from 'lucide-vue-next'
+import { ChevronLeft, Trash2, Pencil } from 'lucide-vue-next'
 import { useGoalsStore } from '../stores/goals'
 import { useDialog } from '../composables/dialog'
 import { useCurrency } from '../composables/currency'
 import { toast } from '../composables/toast'
 import { formatAmount } from '../lib/format'
+import ConfettiBurst from '../components/ConfettiBurst.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -17,6 +18,7 @@ const { symbol } = useCurrency()
 const id = Number(route.params.id)
 const amount = ref<number | null>(null)
 const ready = ref(false)
+const showConfetti = ref(false)
 
 onMounted(async () => {
   await goals.load()
@@ -48,17 +50,26 @@ async function putAside() {
   if (!amount.value || amount.value <= 0) return
   const room = remaining.value
   if (room <= 0) return
+  const wasReached = reached.value
+  const overflow = amount.value > room
   // On plafonne au montant cible : impossible de dépasser l'objectif.
   const add = Math.min(amount.value, room)
   await goals.contribute(id, add)
-  toast('Mis de côté')
-  if (amount.value > room) {
+  amount.value = null
+
+  const justReached = !wasReached && reached.value
+  if (justReached) showConfetti.value = true
+
+  if (overflow) {
     await dialog.alert({
       title: 'Objectif atteint 🎉',
       message: `Seuls ${formatAmount(add)} ont été ajoutés pour atteindre exactement ton objectif.`
     })
+  } else if (justReached) {
+    toast(`🎉 Objectif « ${goal.value?.name} » atteint !`)
+  } else {
+    toast('Mis de côté')
   }
-  amount.value = null
 }
 
 async function withdraw() {
@@ -86,6 +97,39 @@ async function deleteGoal() {
     router.replace('/objectifs')
   }
 }
+
+// --- Édition de l'objectif ---
+const editing = ref(false)
+const editName = ref('')
+const editTarget = ref<number | null>(null)
+const editDeadline = ref('')
+const editColor = ref('#f59e51')
+
+function startEdit() {
+  if (!goal.value) return
+  editName.value = goal.value.name
+  editTarget.value = goal.value.target
+  editDeadline.value = goal.value.deadline ?? ''
+  editColor.value = goal.value.color
+  editing.value = true
+}
+
+function cancelEdit() {
+  editing.value = false
+}
+
+async function saveEdit() {
+  if (!goal.value || !editName.value.trim() || !editTarget.value || editTarget.value <= 0) return
+  await goals.updateGoal({
+    ...goal.value,
+    name: editName.value.trim(),
+    target: editTarget.value,
+    deadline: editDeadline.value || undefined,
+    color: editColor.value
+  })
+  editing.value = false
+  toast('Objectif mis à jour')
+}
 </script>
 
 <template>
@@ -95,31 +139,69 @@ async function deleteGoal() {
     </button>
 
     <section class="card goal-detail">
-      <h1 class="goal-title">
-        <span class="dot" :style="{ background: goal.color }"></span>{{ goal.name }}
-      </h1>
-
-      <div class="goal-figures">
-        <strong :style="{ color: goal.color }">{{ formatAmount(saved) }}</strong>
-        <span class="goal-target">sur {{ formatAmount(goal.target) }}</span>
+      <div class="goal-detail-head">
+        <h1 class="goal-title">
+          <span class="dot" :style="{ background: goal.color }"></span>{{ goal.name }}
+        </h1>
+        <button
+          v-if="!editing"
+          type="button"
+          class="icon-btn"
+          aria-label="Modifier l'objectif"
+          @click="startEdit"
+        >
+          <Pencil :size="18" />
+        </button>
       </div>
 
-      <div class="budget-bar goal-bar-lg">
-        <div
-          class="budget-fill"
-          :style="{ width: Math.min(ratio, 1) * 100 + '%', background: goal.color }"
-        ></div>
-      </div>
+      <template v-if="!editing">
+        <div class="goal-figures">
+          <strong :style="{ color: goal.color }">{{ formatAmount(saved) }}</strong>
+          <span class="goal-target">sur {{ formatAmount(goal.target) }}</span>
+        </div>
 
-      <p v-if="reached" class="goal-badge big">Objectif atteint 🎉</p>
-      <p v-else class="goal-remaining">Encore {{ formatAmount(remaining) }} à épargner</p>
+        <div class="budget-bar goal-bar-lg">
+          <div
+            class="budget-fill"
+            :style="{ width: Math.min(ratio, 1) * 100 + '%', background: goal.color }"
+          ></div>
+        </div>
 
-      <div v-if="goal.deadline" class="goal-deadline">
-        <span>📅 Échéance : {{ deadlineLabel }}</span>
-        <span v-if="!reached && monthly !== null" class="goal-hint">
-          💡 <strong>{{ formatAmount(monthly) }}/mois</strong> pour y arriver
-        </span>
-      </div>
+        <p v-if="reached" class="goal-badge big">Objectif atteint 🎉</p>
+        <p v-else class="goal-remaining">Encore {{ formatAmount(remaining) }} à épargner</p>
+
+        <div v-if="goal.deadline" class="goal-deadline">
+          <span>📅 Échéance : {{ deadlineLabel }}</span>
+          <span v-if="!reached && monthly !== null" class="goal-hint">
+            💡 <strong>{{ formatAmount(monthly) }}/mois</strong> pour y arriver
+          </span>
+        </div>
+      </template>
+
+      <form v-else class="form goal-edit-form" @submit.prevent="saveEdit">
+        <label>
+          Nom
+          <input v-model="editName" type="text" maxlength="40" required />
+        </label>
+        <label>
+          Montant à atteindre ({{ symbol }})
+          <input v-model.number="editTarget" type="number" step="0.01" min="1" required />
+        </label>
+        <div class="cat-add-row">
+          <label style="flex: 1">
+            Date limite (optionnel)
+            <input v-model="editDeadline" type="date" />
+          </label>
+          <label>
+            Couleur
+            <input v-model="editColor" type="color" class="color-input" aria-label="Couleur de l'objectif" />
+          </label>
+        </div>
+        <div class="goal-actions">
+          <button type="button" class="btn-secondary" @click="cancelEdit">Annuler</button>
+          <button type="submit" class="submit-btn">Enregistrer</button>
+        </div>
+      </form>
     </section>
 
     <section class="card form">
@@ -156,5 +238,7 @@ async function deleteGoal() {
     </section>
 
     <button type="button" class="delete-goal" @click="deleteGoal">Supprimer cet objectif</button>
+
+    <ConfettiBurst v-if="showConfetti" @done="showConfetti = false" />
   </template>
 </template>
