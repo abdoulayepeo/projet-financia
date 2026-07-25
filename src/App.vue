@@ -39,7 +39,9 @@ function animateContent() {
     y: 14,
     duration: 0.35,
     stagger: 0.05,
-    ease: 'power2.out'
+    ease: 'power2.out',
+    overwrite: true,
+    clearProps: 'opacity,transform'
   })
 }
 
@@ -48,11 +50,16 @@ watch(
   () => nextTick(animateContent)
 )
 
-onMounted(async () => {
-  await categories.load()
-  await recurrings.applyDue()
-  await transactions.load()
+onMounted(() => {
+  // Anime la toute première page dès qu'elle est montée — indépendamment des
+  // chargements ci-dessous, qui portent sur des données globales (récurrences,
+  // catégories) et n'ont aucun rapport avec la présence du DOM de la page.
   nextTick(animateContent)
+  ;(async () => {
+    await categories.load()
+    await recurrings.applyDue()
+    await transactions.load()
+  })()
 })
 </script>
 
