@@ -6,6 +6,7 @@ import { useGoalsStore } from '../stores/goals'
 import { useCurrency } from '../composables/currency'
 import { toast } from '../composables/toast'
 import { formatAmount } from '../lib/format'
+import Skeleton from '../components/Skeleton.vue'
 
 const router = useRouter()
 const goals = useGoalsStore()
@@ -50,11 +51,24 @@ async function addGoal() {
 <template>
   <h1>Objectifs d'épargne</h1>
 
-  <p v-if="!rows.length" class="empty">
-    Aucun objectif pour l'instant.<br />
-    Crée ta première cagnotte ci-dessous 👇
-  </p>
+  <!-- Squelettes -->
+  <template v-if="!goals.hasLoaded">
+    <div v-for="i in 2" :key="i" class="card">
+      <Skeleton width="60%" height="1.1rem" />
+      <div style="margin-top: 0.9rem"><Skeleton block height="0.9rem" /></div>
+    </div>
+  </template>
 
+  <!-- État vide illustré -->
+  <template v-else-if="!rows.length">
+    <div class="empty-state">
+      <div class="empty-illustration"><Target :size="34" /></div>
+      <h3>Aucun objectif pour l'instant</h3>
+      <p>Fixe-toi un but concret (téléphone, voyage, permis…) et suis ta progression mois après mois.</p>
+    </div>
+  </template>
+
+  <!-- Liste des objectifs -->
   <section
     v-for="r in rows"
     :key="r.goal.id"
@@ -81,7 +95,8 @@ async function addGoal() {
     </p>
   </section>
 
-  <form class="card form" @submit.prevent="addGoal">
+  <!-- Formulaire de création (toujours visible) -->
+  <form v-if="goals.hasLoaded" class="card form" @submit.prevent="addGoal">
     <h2><Target :size="18" style="vertical-align: -3px" /> Nouvel objectif</h2>
     <label>
       Nom

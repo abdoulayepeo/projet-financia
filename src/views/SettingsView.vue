@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { Pencil, Trash2, Download } from 'lucide-vue-next'
+import { Pencil, Trash2, Download, Coins, Tags, Wallet, Repeat, FileDown } from 'lucide-vue-next'
 import { db, type Category } from '../db'
 import { useBudgetsStore } from '../stores/budgets'
 import { useCategoriesStore } from '../stores/categories'
@@ -10,6 +10,8 @@ import { formatAmount, formatMonth } from '../lib/format'
 import { downloadCsv } from '../lib/csv'
 import { useDialog } from '../composables/dialog'
 import { useCurrency } from '../composables/currency'
+import { toast } from '../composables/toast'
+import CollapsibleSection from '../components/CollapsibleSection.vue'
 
 const budgets = useBudgetsStore()
 const cats = useCategoriesStore()
@@ -48,6 +50,7 @@ async function addCategory() {
     return
   }
   await cats.add(name, cType.value, cColor.value)
+  toast('Catégorie ajoutée')
   cName.value = ''
 }
 
@@ -113,6 +116,7 @@ async function addRecurring() {
     note: rNote.value.trim() || undefined
   })
   await transactions.load()
+  toast('Récurrence créée')
   rAmount.value = null
   rCategory.value = ''
   rDay.value = 1
@@ -132,19 +136,27 @@ async function removeRecurring(id: number) {
 // --- Export CSV ---
 function exportMonth() {
   downloadCsv(transactions.transactions, `financia-${transactions.month}.csv`)
+  toast('CSV téléchargé')
 }
 
 async function exportAll() {
   downloadCsv(await db.transactions.orderBy('date').toArray(), 'financia-tout.csv')
+  toast('CSV téléchargé')
 }
+
+// Nombre de budgets/récurrences déjà définis, pour les afficher en tête de section
+const budgetCount = computed(() => Object.keys(budgets.budgets).length)
 </script>
 
 <template>
   <h1>Réglages</h1>
 
-  <section class="card">
-    <h2>Devise</h2>
-    <p class="hint">Change l’affichage des montants. Les valeurs ne sont pas converties automatiquement.</p>
+  <CollapsibleSection
+    title="Devise"
+    :open="true"
+    hint="Change l’affichage des montants. Les valeurs ne sont pas converties automatiquement."
+  >
+    <template #icon><Coins :size="18" /></template>
     <div class="currency-toggle">
       <button
         v-for="c in currencies"
@@ -156,15 +168,13 @@ async function exportAll() {
         {{ c.symbol }} · {{ c.label }}
       </button>
     </div>
-  </section>
+  </CollapsibleSection>
 
-  <section class="card">
-    <h2>Catégories</h2>
-    <p class="hint">
-      Personnalise tes catégories : nom et couleur. « Autre » sert de catégorie de repli et ne peut
-      pas être modifiée.
-    </p>
-
+  <CollapsibleSection
+    title="Catégories"
+    hint="Personnalise tes catégories : nom et couleur. « Autre » sert de catégorie de repli et ne peut pas être modifiée."
+  >
+    <template #icon><Tags :size="18" /></template>
     <div class="type-toggle">
       <button type="button" :class="{ active: cType === 'expense' }" @click="cType = 'expense'">
         Dépenses
@@ -198,11 +208,13 @@ async function exportAll() {
       </div>
       <button type="submit" class="submit-btn">Ajouter la catégorie</button>
     </form>
-  </section>
+  </CollapsibleSection>
 
-  <section class="card">
-    <h2>Budgets mensuels par catégorie</h2>
-    <p class="hint">Fixe un plafond de dépenses : le tableau de bord t'alerte quand tu t'en approches.</p>
+  <CollapsibleSection
+    title="Budgets mensuels"
+    hint="Fixe un plafond de dépenses : le tableau de bord t'alerte quand tu t'en approches."
+  >
+    <template #icon><Wallet :size="18" /></template>
     <div v-for="c in cats.expenseCategories" :key="c.id" class="settings-row">
       <span>{{ c.name }}</span>
       <input
@@ -215,11 +227,16 @@ async function exportAll() {
         @change="onBudgetChange(c.name, $event)"
       />
     </div>
-  </section>
+    <p v-if="budgetCount === 0" class="hint" style="margin: 0.8rem 0 0">
+      Aucun budget défini pour l’instant. Renseigne un montant pour l’activer.
+    </p>
+  </CollapsibleSection>
 
-  <section class="card">
-    <h2>Transactions récurrentes</h2>
-    <p class="hint">Loyer, abonnements, bourse… créées automatiquement chaque mois.</p>
+  <CollapsibleSection
+    title="Transactions récurrentes"
+    hint="Loyer, abonnements, bourse… créées automatiquement chaque mois."
+  >
+    <template #icon><Repeat :size="18" /></template>
 
     <ul v-if="recurrings.recurrings.length" class="rec-list">
       <li v-for="r in recurrings.recurrings" :key="r.id" class="settings-row">
@@ -260,10 +277,10 @@ async function exportAll() {
       </label>
       <button type="submit" class="submit-btn">Ajouter la récurrence</button>
     </form>
-  </section>
+  </CollapsibleSection>
 
-  <section class="card">
-    <h2>Exporter en CSV</h2>
+  <CollapsibleSection title="Exporter en CSV" hint="Récupère tes données pour Excel ou Google Sheets.">
+    <template #icon><FileDown :size="18" /></template>
     <div class="export-btns">
       <button type="button" class="btn-secondary" @click="exportMonth">
         <Download :size="16" /> {{ formatMonth(transactions.month) }}
@@ -272,5 +289,5 @@ async function exportAll() {
         <Download :size="16" /> Tout l'historique
       </button>
     </div>
-  </section>
+  </CollapsibleSection>
 </template>

@@ -6,7 +6,9 @@ export const useTransactionsStore = defineStore('transactions', {
   state: () => ({
     /** Mois affiché, format `AAAA-MM` */
     month: currentMonth(),
-    transactions: [] as Transaction[]
+    transactions: [] as Transaction[],
+    /** Passe à true après le premier chargement — sert à masquer les skeletons */
+    hasLoaded: false
   }),
 
   getters: {
@@ -36,6 +38,7 @@ export const useTransactionsStore = defineStore('transactions', {
     async load() {
       const rows = await db.transactions.where('date').startsWith(this.month).sortBy('date')
       this.transactions = rows.reverse()
+      this.hasLoaded = true
     },
     async setMonth(month: string) {
       this.month = month

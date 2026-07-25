@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref, watch } from 'vue'
-import { RouterLink, RouterView, useRoute } from 'vue-router'
+import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import gsap from 'gsap'
 import {
   Sun,
@@ -9,6 +9,7 @@ import {
   BarChart3,
   Plus,
   ReceiptText,
+  Target,
   Settings
 } from 'lucide-vue-next'
 import LogoMark from './components/LogoMark.vue'
@@ -22,6 +23,7 @@ import { useTransactionsStore } from './stores/transactions'
 
 const { theme, toggle } = useTheme()
 const route = useRoute()
+const router = useRouter()
 const categories = useCategoriesStore()
 const recurrings = useRecurringsStore()
 const transactions = useTransactionsStore()
@@ -63,15 +65,26 @@ onMounted(async () => {
         <span class="brand-icon"><LogoMark :size="22" variant="tile" /></span>
         Financia
       </div>
-      <button
-        class="theme-toggle"
-        type="button"
-        :aria-label="theme === 'dark' ? 'Passer en thème clair' : 'Passer en thème sombre'"
-        @click="toggle"
-      >
-        <Sun v-if="theme === 'dark'" :size="18" />
-        <Moon v-else :size="18" />
-      </button>
+      <div class="app-bar-actions">
+        <button
+          class="theme-toggle"
+          type="button"
+          :aria-label="theme === 'dark' ? 'Passer en thème clair' : 'Passer en thème sombre'"
+          @click="toggle"
+        >
+          <Sun v-if="theme === 'dark'" :size="18" />
+          <Moon v-else :size="18" />
+        </button>
+        <button
+          class="theme-toggle"
+          type="button"
+          aria-label="Ouvrir les réglages"
+          :class="{ 'is-active': route.path === '/reglages' }"
+          @click="router.push('/reglages')"
+        >
+          <Settings :size="18" />
+        </button>
+      </div>
     </header>
 
     <main class="content">
@@ -94,9 +107,9 @@ onMounted(async () => {
         <ReceiptText :size="20" />
         <span>Historique</span>
       </RouterLink>
-      <RouterLink to="/reglages" class="nav-item">
-        <Settings :size="20" />
-        <span>Réglages</span>
+      <RouterLink to="/objectifs" class="nav-item">
+        <Target :size="20" />
+        <span>Objectifs</span>
       </RouterLink>
     </nav>
 

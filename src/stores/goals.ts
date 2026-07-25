@@ -16,7 +16,8 @@ function today(): string {
 export const useGoalsStore = defineStore('goals', {
   state: () => ({
     goals: [] as Goal[],
-    contributions: [] as Contribution[]
+    contributions: [] as Contribution[],
+    hasLoaded: false
   }),
 
   getters: {
@@ -48,6 +49,7 @@ export const useGoalsStore = defineStore('goals', {
     async load() {
       this.goals = await db.goals.orderBy('id').toArray()
       this.contributions = await db.contributions.toArray()
+      this.hasLoaded = true
     },
 
     /** Montant à mettre de côté chaque mois pour tenir la date limite. */
