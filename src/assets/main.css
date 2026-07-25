@@ -1046,12 +1046,24 @@ input[type='color']::-webkit-color-swatch {
   margin-bottom: 0;
 }
 
+.goal-detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
 .goal-title {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 1.3rem;
-  margin: 0 0 1rem;
+  margin: 0;
+}
+
+.goal-edit-form {
+  margin-top: -0.2rem;
 }
 .goal-figures {
   display: flex;
@@ -1120,6 +1132,27 @@ input[type='color']::-webkit-color-swatch {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+}
+
+/* ===== Confettis (objectif atteint) ===== */
+.confetti {
+  position: fixed;
+  top: 38%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  z-index: 150;
+  pointer-events: none;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 3px;
 }
 
 .stat-half {
