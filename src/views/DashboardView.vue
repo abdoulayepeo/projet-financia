@@ -9,6 +9,7 @@ import { useGoalsStore } from '../stores/goals'
 import { formatAmount } from '../lib/format'
 import MonthPicker from '../components/MonthPicker.vue'
 import CategoryChart from '../components/CategoryChart.vue'
+import Skeleton from '../components/Skeleton.vue'
 
 const router = useRouter()
 const store = useTransactionsStore()
@@ -22,6 +23,8 @@ onMounted(() => {
   categories.load()
   goals.load()
 })
+
+const ready = computed(() => store.hasLoaded && goals.hasLoaded)
 
 const savedThisMonth = computed(() => goals.savedInMonth(store.month))
 const available = computed(() => store.balance - savedThisMonth.value)
@@ -64,94 +67,118 @@ const goalRows = computed(() =>
 <template>
   <MonthPicker :model-value="store.month" @update:model-value="store.setMonth" />
 
-  <section class="stats">
-    <div class="card stat">
-      <span class="stat-label"><TrendingUp :size="13" /> Revenus</span>
-      <strong class="income">{{ formatAmount(store.totalIncome) }}</strong>
+  <!-- Squelettes pendant le premier chargement -->
+  <template v-if="!ready">
+    <section class="stats">
+      <div class="card stat"><Skeleton width="4rem" height="0.7rem" /><Skeleton width="7rem" height="1.4rem" /></div>
+      <div class="card stat"><Skeleton width="4rem" height="0.7rem" /><Skeleton width="7rem" height="1.4rem" /></div>
+      <div class="card stat stat-balance" style="gap: 0.6rem">
+        <Skeleton width="7rem" height="0.7rem" />
+        <Skeleton width="60%" height="1.9rem" />
+      </div>
+    </section>
+    <div class="card">
+      <Skeleton width="6rem" height="1.1rem" />
+      <div style="margin-top: 1rem"><Skeleton block height="0.9rem" /></div>
+      <div style="margin-top: 0.9rem"><Skeleton block height="0.9rem" /></div>
     </div>
-    <div class="card stat">
-      <span class="stat-label"><TrendingDown :size="13" /> Dépenses</span>
-      <strong class="expense">{{ formatAmount(store.totalExpense) }}</strong>
+    <div class="card">
+      <Skeleton width="10rem" height="1.1rem" />
+      <div class="skeleton-donut" style="margin-top: 1rem"></div>
     </div>
-    <div class="card stat stat-balance">
-      <span class="stat-label">Disponible ce mois</span>
-      <strong>{{ formatAmount(available) }}</strong>
-      <span v-if="savedThisMonth > 0" class="stat-sub">
-        dont {{ formatAmount(savedThisMonth) }} mis de côté
-      </span>
-    </div>
-  </section>
+  </template>
 
-  <section class="card">
-    <div class="card-head">
-      <h2><Target :size="16" style="vertical-align: -3px" /> Objectifs</h2>
-      <button type="button" class="link-btn" @click="router.push('/objectifs')">
-        Gérer <ChevronRight :size="15" />
-      </button>
-    </div>
+  <!-- Vraie interface -->
+  <template v-else>
+    <section class="stats">
+      <div class="card stat">
+        <span class="stat-label"><TrendingUp :size="13" /> Revenus</span>
+        <strong class="income">{{ formatAmount(store.totalIncome) }}</strong>
+      </div>
+      <div class="card stat">
+        <span class="stat-label"><TrendingDown :size="13" /> Dépenses</span>
+        <strong class="expense">{{ formatAmount(store.totalExpense) }}</strong>
+      </div>
+      <div class="card stat stat-balance">
+        <span class="stat-label">Disponible ce mois</span>
+        <strong>{{ formatAmount(available) }}</strong>
+        <span v-if="savedThisMonth > 0" class="stat-sub">
+          dont {{ formatAmount(savedThisMonth) }} mis de côté
+        </span>
+      </div>
+    </section>
 
-    <template v-if="goalRows.length">
-      <div
-        v-for="r in goalRows"
-        :key="r.goal.id"
-        class="budget-row goal-mini"
-        @click="router.push(`/objectifs/${r.goal.id}`)"
-      >
+    <section class="card">
+      <div class="card-head">
+        <h2><Target :size="16" style="vertical-align: -3px" /> Objectifs</h2>
+        <button type="button" class="link-btn" @click="router.push('/objectifs')">
+          Gérer <ChevronRight :size="15" />
+        </button>
+      </div>
+
+      <template v-if="goalRows.length">
+        <div
+          v-for="r in goalRows"
+          :key="r.goal.id"
+          class="budget-row goal-mini"
+          @click="router.push(`/objectifs/${r.goal.id}`)"
+        >
+          <div class="budget-head">
+            <span>{{ r.goal.name }}</span>
+            <span :class="{ income: r.reached }">
+              {{ formatAmount(r.saved) }} / {{ formatAmount(r.goal.target) }}
+            </span>
+          </div>
+          <div class="budget-bar">
+            <div
+              class="budget-fill"
+              :style="{ width: Math.min(r.ratio, 1) * 100 + '%', background: r.goal.color }"
+            ></div>
+          </div>
+        </div>
+      </template>
+      <p v-else class="hint" style="margin: 0">
+        Épargne pour tes projets (voyage, téléphone, permis…) et suis ta progression.
+        Touche « Gérer » pour créer ton premier objectif.
+      </p>
+    </section>
+
+    <section v-if="budgetRows.length" class="card">
+      <h2>Budgets</h2>
+      <div v-for="b in budgetRows" :key="b.category" class="budget-row">
         <div class="budget-head">
-          <span>{{ r.goal.name }}</span>
-          <span :class="{ income: r.reached }">
-            {{ formatAmount(r.saved) }} / {{ formatAmount(r.goal.target) }}
+          <span>{{ b.category }}</span>
+          <span :class="{ expense: b.ratio > 1 }">
+            {{ formatAmount(b.spent) }} / {{ formatAmount(b.limit) }}
           </span>
         </div>
         <div class="budget-bar">
           <div
             class="budget-fill"
-            :style="{ width: Math.min(r.ratio, 1) * 100 + '%', background: r.goal.color }"
+            :class="{ warn: b.ratio >= 0.8 && b.ratio <= 1, over: b.ratio > 1 }"
+            :style="{ width: Math.min(b.ratio, 1) * 100 + '%' }"
           ></div>
         </div>
+        <span v-if="b.ratio > 1" class="budget-alert">⚠️ Dépassé de +{{ formatAmount(b.spent - b.limit) }}</span>
       </div>
-    </template>
-    <p v-else class="hint" style="margin: 0">
-      Épargne pour tes projets (voyage, téléphone, permis…) et suis ta progression.
-      Touche « Gérer » pour créer ton premier objectif.
+    </section>
+
+    <section v-if="outflow.length" class="card">
+      <h2>Où part ton argent</h2>
+      <CategoryChart :data="outflow" />
+      <ul class="cat-list">
+        <li v-for="c in outflow" :key="c.category">
+          <span class="dot" :style="{ background: c.color }"></span>
+          <span class="cat-name">{{ c.category }}</span>
+          <span class="cat-pct">{{ c.pct }} %</span>
+          <span class="cat-total">{{ formatAmount(c.total) }}</span>
+        </li>
+      </ul>
+    </section>
+
+    <p v-else class="empty">
+      Aucune dépense ni épargne ce mois-ci.<br />
+      Ajoute ta première transaction avec le bouton ＋
     </p>
-  </section>
-
-  <section v-if="budgetRows.length" class="card">
-    <h2>Budgets</h2>
-    <div v-for="b in budgetRows" :key="b.category" class="budget-row">
-      <div class="budget-head">
-        <span>{{ b.category }}</span>
-        <span :class="{ expense: b.ratio > 1 }">
-          {{ formatAmount(b.spent) }} / {{ formatAmount(b.limit) }}
-        </span>
-      </div>
-      <div class="budget-bar">
-        <div
-          class="budget-fill"
-          :class="{ warn: b.ratio >= 0.8 && b.ratio <= 1, over: b.ratio > 1 }"
-          :style="{ width: Math.min(b.ratio, 1) * 100 + '%' }"
-        ></div>
-      </div>
-      <span v-if="b.ratio > 1" class="budget-alert">⚠️ Dépassé de +{{ formatAmount(b.spent - b.limit) }}</span>
-    </div>
-  </section>
-
-  <section v-if="outflow.length" class="card">
-    <h2>Où part ton argent</h2>
-    <CategoryChart :data="outflow" />
-    <ul class="cat-list">
-      <li v-for="c in outflow" :key="c.category">
-        <span class="dot" :style="{ background: c.color }"></span>
-        <span class="cat-name">{{ c.category }}</span>
-        <span class="cat-pct">{{ c.pct }} %</span>
-        <span class="cat-total">{{ formatAmount(c.total) }}</span>
-      </li>
-    </ul>
-  </section>
-
-  <p v-else class="empty">
-    Aucune dépense ni épargne ce mois-ci.<br />
-    Ajoute ta première transaction avec le bouton ＋
-  </p>
+  </template>
 </template>
