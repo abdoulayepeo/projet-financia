@@ -1134,6 +1134,147 @@ input[type='color']::-webkit-color-swatch {
   cursor: pointer;
 }
 
+/* ===== Anneau de focus (Accueil) ===== */
+.focus-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.2s ease;
+}
+
+.focus-card:active {
+  transform: scale(0.99);
+  border-color: var(--primary);
+}
+
+.focus-ring-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+}
+
+.focus-ring-bar {
+  transition: stroke-dashoffset 0.7s ease;
+}
+
+.focus-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+}
+
+.focus-ring-center strong {
+  font-size: 1.15rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.focus-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.focus-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.focus-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.focus-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.focus-chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .focus-ring-bar {
+    transition: none;
+  }
+}
+
+/* ===== Carrousel d'objectifs (Accueil) ===== */
+.goal-carousel {
+  display: flex;
+  gap: 0.7rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.2rem;
+  margin: 0 -0.1rem;
+  scrollbar-width: none;
+}
+
+.goal-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.goal-chip-card {
+  flex: 0 0 auto;
+  width: 158px;
+  scroll-snap-align: start;
+  background: var(--bg-tint);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.2s ease;
+}
+
+.goal-chip-card:active {
+  transform: scale(0.97);
+  border-color: var(--primary);
+}
+
+.goal-chip-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.goal-chip-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.goal-chip-bar {
+  height: 6px;
+}
+
+.goal-chip-amt {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ===== Confettis (objectif atteint) ===== */
 .confetti {
   position: fixed;
