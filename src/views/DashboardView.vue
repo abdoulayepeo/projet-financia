@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { TrendingUp, TrendingDown, Target, ChevronRight } from 'lucide-vue-next'
+import { TrendingUp, TrendingDown, Target, ChevronRight, TriangleAlert, Wallet } from 'lucide-vue-next'
 import { useTransactionsStore } from '../stores/transactions'
 import { useBudgetsStore } from '../stores/budgets'
 import { useCategoriesStore } from '../stores/categories'
@@ -62,6 +62,69 @@ const goalRows = computed(() =>
     return { goal: g, saved, ratio: g.target > 0 ? saved / g.target : 0, reached: saved >= g.target }
   })
 )
+
+// ===== Anneau de focus =====
+// Met en avant automatiquement ce qui mérite le plus l'attention ce mois-ci :
+// un budget dépassé > un budget qui s'approche de sa limite > l'objectif le
+// plus avancé. Rien à signaler → la carte ne s'affiche pas.
+const RING_CIRCUMFERENCE = 2 * Math.PI * 52
+
+interface FocusItem {
+  kind: 'over' | 'warn' | 'goal'
+  color: string
+  percent: number
+  title: string
+  subtitle: string
+  goalId?: number
+}
+
+const focus = computed<FocusItem | null>(() => {
+  const over = budgetRows.value.filter((b) => b.ratio > 1).sort((a, b) => b.ratio - a.ratio)[0]
+  if (over) {
+    return {
+      kind: 'over',
+      color: 'var(--expense)',
+      percent: over.ratio * 100,
+      title: over.category,
+      subtitle: `Dépassé de +${formatAmount(over.spent - over.limit)}`
+    }
+  }
+  const warn = budgetRows.value.filter((b) => b.ratio >= 0.8).sort((a, b) => b.ratio - a.ratio)[0]
+  if (warn) {
+    return {
+      kind: 'warn',
+      color: 'var(--accent)',
+      percent: warn.ratio * 100,
+      title: warn.category,
+      subtitle: `${formatAmount(warn.spent)} / ${formatAmount(warn.limit)}`
+    }
+  }
+  const goal = goalRows.value.filter((g) => !g.reached).sort((a, b) => b.ratio - a.ratio)[0]
+  if (goal) {
+    return {
+      kind: 'goal',
+      color: goal.goal.color,
+      percent: goal.ratio * 100,
+      title: goal.goal.name,
+      subtitle: `${formatAmount(goal.saved)} / ${formatAmount(goal.goal.target)}`,
+      goalId: goal.goal.id
+    }
+  }
+  return null
+})
+
+function ringOffset(percent: number): number {
+  const clamped = Math.min(Math.max(percent, 0), 100)
+  return RING_CIRCUMFERENCE - (RING_CIRCUMFERENCE * clamped) / 100
+}
+
+function openFocus() {
+  if (focus.value?.kind === 'goal' && focus.value.goalId) {
+    router.push(`/objectifs/${focus.value.goalId}`)
+  } else {
+    router.push('/reglages')
+  }
+}
 </script>
 
 <template>
@@ -78,6 +141,9 @@ const goalRows = computed(() =>
         <Skeleton width="45%" height="0.9rem" />
         <Skeleton width="45%" height="0.9rem" />
       </div>
+    </div>
+    <div class="card" style="display: flex; justify-content: center">
+      <Skeleton width="120px" height="120px" radius="50%" />
     </div>
     <div class="card">
       <Skeleton width="6rem" height="1.1rem" />
@@ -112,6 +178,41 @@ const goalRows = computed(() =>
       </div>
     </section>
 
+    <section v-if="focus" class="card focus-card" @click="openFocus">
+      <div class="focus-ring-wrap">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--surface-2)" stroke-width="10" />
+          <circle
+            cx="60"
+            cy="60"
+            r="52"
+            fill="none"
+            :stroke="focus.color"
+            stroke-width="10"
+            stroke-linecap="round"
+            :stroke-dasharray="RING_CIRCUMFERENCE"
+            :stroke-dashoffset="ringOffset(focus.percent)"
+            transform="rotate(-90 60 60)"
+            class="focus-ring-bar"
+          />
+        </svg>
+        <div class="focus-ring-center">
+          <TriangleAlert v-if="focus.kind === 'over'" :size="18" :color="focus.color" />
+          <Wallet v-else-if="focus.kind === 'warn'" :size="18" :color="focus.color" />
+          <Target v-else :size="18" :color="focus.color" />
+          <strong>{{ Math.round(focus.percent) }}%</strong>
+        </div>
+      </div>
+      <div class="focus-text">
+        <span class="focus-eyebrow">
+          {{ focus.kind === 'over' ? 'Budget dépassé' : focus.kind === 'warn' ? 'Budget serré' : 'Objectif en cours' }}
+        </span>
+        <span class="focus-title">{{ focus.title }}</span>
+        <span class="focus-sub" :class="{ expense: focus.kind === 'over' }">{{ focus.subtitle }}</span>
+      </div>
+      <ChevronRight :size="18" class="focus-chevron" />
+    </section>
+
     <section class="card">
       <div class="card-head">
         <h2><Target :size="16" style="vertical-align: -3px" /> Objectifs</h2>
@@ -120,27 +221,29 @@ const goalRows = computed(() =>
         </button>
       </div>
 
-      <template v-if="goalRows.length">
+      <div v-if="goalRows.length" class="goal-carousel">
         <div
           v-for="r in goalRows"
           :key="r.goal.id"
-          class="budget-row goal-mini"
+          class="goal-chip-card"
           @click="router.push(`/objectifs/${r.goal.id}`)"
         >
-          <div class="budget-head">
-            <span>{{ r.goal.name }}</span>
-            <span :class="{ income: r.reached }">
-              {{ formatAmount(r.saved) }} / {{ formatAmount(r.goal.target) }}
-            </span>
+          <div class="goal-chip-head">
+            <span class="dot" :style="{ background: r.goal.color }"></span>
+            <span class="goal-chip-name">{{ r.goal.name }}</span>
           </div>
-          <div class="budget-bar">
+          <div class="budget-bar goal-chip-bar">
             <div
               class="budget-fill"
-              :style="{ width: Math.min(r.ratio, 1) * 100 + '%', background: r.goal.color }"
+              :class="{ over: r.reached }"
+              :style="{ width: Math.min(r.ratio, 1) * 100 + '%', background: r.reached ? undefined : r.goal.color }"
             ></div>
           </div>
+          <span class="goal-chip-amt" :class="{ income: r.reached }">
+            {{ formatAmount(r.saved) }} / {{ formatAmount(r.goal.target) }}
+          </span>
         </div>
-      </template>
+      </div>
       <p v-else class="hint" style="margin: 0">
         Épargne pour tes projets (voyage, téléphone, permis…) et suis ta progression.
         Touche « Gérer » pour créer ton premier objectif.
