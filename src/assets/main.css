@@ -696,8 +696,7 @@ label {
   color: var(--text-muted);
 }
 
-input,
-select {
+input {
   width: 100%;
   background: var(--bg-tint);
   border: 1px solid var(--border);
@@ -714,27 +713,14 @@ input::placeholder {
   opacity: 0.7;
 }
 
-input:hover,
-select:hover {
+input:hover {
   border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
 }
 
-input:focus,
-select:focus {
+input:focus {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent);
-}
-
-/* Select : chevron personnalisé */
-select {
-  appearance: none;
-  -webkit-appearance: none;
-  padding-right: 2.5rem;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a7599' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.9rem center;
-  cursor: pointer;
 }
 
 /* Nombre : on masque les petites flèches pour un rendu plus net */
@@ -746,23 +732,6 @@ input[type='number']::-webkit-outer-spin-button {
 input[type='number'] {
   -moz-appearance: textfield;
   appearance: textfield;
-}
-
-/* Date : icône calendrier lisible selon le thème */
-input[type='date']::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  opacity: 0.7;
-}
-@media (prefers-color-scheme: dark) {
-  input[type='date']::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-  }
-}
-:root[data-theme='dark'] input[type='date']::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-}
-:root[data-theme='light'] input[type='date']::-webkit-calendar-picker-indicator {
-  filter: none;
 }
 
 /* Sélecteur de couleur : pastille propre */
@@ -2034,4 +2003,203 @@ input[type='color']::-webkit-color-swatch {
   .onb-dot {
     transition: none;
   }
+}
+
+/* ===== Champs de formulaire custom (remplacent select/date natifs) ===== */
+.select-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  background: var(--bg-tint);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  color: var(--text);
+  padding: 0.8rem 0.9rem;
+  font-size: 1rem;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.select-trigger:hover {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+}
+
+.select-trigger.is-open {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent);
+}
+
+.select-trigger.is-placeholder .select-trigger-value {
+  color: var(--text-muted);
+}
+
+.select-trigger-value {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.select-chevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.select-trigger.is-open .select-chevron {
+  transform: rotate(180deg);
+}
+
+.select-menu {
+  width: 100%;
+  max-width: 360px;
+  max-height: min(70vh, 420px);
+  overflow-y: auto;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 0.5rem;
+  box-shadow: 0 26px 60px -20px rgba(0, 0, 0, 0.65);
+}
+
+.select-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.select-option:hover,
+.select-option:focus-visible {
+  background: var(--surface-2);
+  outline: none;
+}
+
+.select-option[aria-selected='true'] {
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  font-weight: 600;
+}
+
+.select-option-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.select-option-check {
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+/* ===== Calendrier custom ===== */
+.date-card {
+  width: 100%;
+  max-width: 340px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 1.1rem;
+  box-shadow: 0 26px 60px -20px rgba(0, 0, 0, 0.65);
+}
+
+.date-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.date-head-label {
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.date-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 0.3rem;
+}
+
+.date-weekdays span {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.date-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.date-cell {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: none;
+  border-radius: var(--radius-control);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.date-cell:hover {
+  background: var(--surface-2);
+}
+
+.date-cell.outside {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.date-cell.today {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.date-cell.selected {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.date-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.date-actions .btn-secondary {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.dlg-enter-active .select-menu,
+.dlg-enter-active .date-card {
+  transition: transform 0.2s ease;
+}
+.dlg-enter-from .select-menu,
+.dlg-enter-from .date-card {
+  transform: translateY(10px) scale(0.97);
 }

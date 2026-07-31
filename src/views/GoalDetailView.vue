@@ -8,6 +8,7 @@ import { useCurrency } from '../composables/currency'
 import { toast } from '../composables/toast'
 import { formatAmount } from '../lib/format'
 import ConfettiBurst from '../components/ConfettiBurst.vue'
+import CustomDatePicker from '../components/CustomDatePicker.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -194,7 +195,12 @@ async function saveEdit() {
         <div class="cat-add-row">
           <label style="flex: 1">
             Date limite (optionnel)
-            <input v-model="editDeadline" type="date" />
+            <CustomDatePicker
+              v-model="editDeadline"
+              placeholder="Aucune"
+              clearable
+              aria-label="Date limite de l'objectif"
+            />
           </label>
           <label>
             Couleur

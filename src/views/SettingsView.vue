@@ -12,6 +12,7 @@ import { useDialog } from '../composables/dialog'
 import { useCurrency } from '../composables/currency'
 import { toast } from '../composables/toast'
 import CollapsibleSection from '../components/CollapsibleSection.vue'
+import CustomSelect from '../components/CustomSelect.vue'
 
 const budgets = useBudgetsStore()
 const cats = useCategoriesStore()
@@ -99,6 +100,10 @@ const rNote = ref('')
 
 const rCategories = computed(() =>
   rType.value === 'expense' ? cats.expenseCategories : cats.incomeCategories
+)
+
+const rCategoryOptions = computed(() =>
+  rCategories.value.map((c) => ({ value: c.name, label: c.name, color: c.color }))
 )
 
 function setRType(t: 'expense' | 'income') {
@@ -262,10 +267,12 @@ const budgetCount = computed(() => Object.keys(budgets.budgets).length)
       </label>
       <label>
         Catégorie
-        <select v-model="rCategory" required>
-          <option value="" disabled>Choisir une catégorie…</option>
-          <option v-for="c in rCategories" :key="c.id" :value="c.name">{{ c.name }}</option>
-        </select>
+        <CustomSelect
+          v-model="rCategory"
+          :options="rCategoryOptions"
+          placeholder="Choisir une catégorie…"
+          aria-label="Catégorie de la récurrence"
+        />
       </label>
       <label>
         Jour du mois
