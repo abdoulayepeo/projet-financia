@@ -611,8 +611,17 @@ h2 {
 }
 
 .tx-amount {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
+}
+
+/* Icône redondante à la couleur (revenu/dépense) pour l'accessibilité
+   daltonisme — WCAG 1.4.1, double encodage de l'information. */
+.tx-direction {
+  flex-shrink: 0;
 }
 
 .tx-note {
