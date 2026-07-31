@@ -93,6 +93,12 @@ export const useGoalsStore = defineStore('goals', {
     async removeContribution(id: number) {
       await db.contributions.delete(id)
       await this.load()
+    },
+
+    /** Réinsère un mouvement supprimé en conservant son id (annulation). */
+    async restoreContribution(c: Contribution) {
+      await db.contributions.put(c)
+      await this.load()
     }
   }
 })

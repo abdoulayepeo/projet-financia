@@ -55,6 +55,11 @@ export const useTransactionsStore = defineStore('transactions', {
     async remove(id: number) {
       await db.transactions.delete(id)
       await this.load()
+    },
+    /** Réinsère une transaction supprimée en conservant son id (annulation). */
+    async restore(t: Transaction) {
+      await db.transactions.put(t)
+      await this.load()
     }
   }
 })

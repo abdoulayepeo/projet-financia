@@ -82,7 +82,11 @@ async function withdraw() {
 }
 
 async function removeContribution(cid: number) {
+  const snapshot = goals.contributions.find((c) => c.id === cid)
+  if (!snapshot) return
+  const copy = { ...snapshot }
   await goals.removeContribution(cid)
+  toast('Mouvement supprimé', { label: 'Annuler', run: () => goals.restoreContribution(copy) })
 }
 
 async function deleteGoal() {
