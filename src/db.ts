@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
-import { DEFAULT_CATEGORIES } from './categories'
+import { DEFAULT_CATEGORIES, LEGACY_DEFAULT_COLORS } from './categories'
 
 export interface Transaction {
   id: number
@@ -98,6 +98,30 @@ db.version(4).stores({
   goals: '++id',
   contributions: '++id, goalId, date'
 })
+
+// Nouvelle palette catégorielle (audit design, Phase 2) : ne recolore que les
+// catégories encore à leur ancienne couleur par défaut, pour ne jamais
+// écraser une personnalisation faite par l'utilisateur.
+db.version(5)
+  .stores({
+    transactions: '++id, date, type, category',
+    budgets: 'category',
+    recurrings: '++id',
+    categories: '++id, type',
+    goals: '++id',
+    contributions: '++id, goalId, date'
+  })
+  .upgrade(async (tx) => {
+    const table = tx.table<Category, number>('categories')
+    const categories = await table.toArray()
+    for (const cat of categories) {
+      const legacyColor = LEGACY_DEFAULT_COLORS[`${cat.type}:${cat.name}`]
+      const fresh = DEFAULT_CATEGORIES.find((d) => d.type === cat.type && d.name === cat.name)
+      if (legacyColor && fresh && cat.color === legacyColor) {
+        await table.update(cat.id, { color: fresh.color })
+      }
+    }
+  })
 
 // Base créée directement (nouvel utilisateur) : l'upgrade ne tourne pas,
 // les catégories par défaut sont insérées ici.

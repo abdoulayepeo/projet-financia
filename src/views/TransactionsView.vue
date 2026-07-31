@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Trash2, PiggyBank, ReceiptText, Plus } from 'lucide-vue-next'
+import { Trash2, PiggyBank, ReceiptText, Plus, ArrowUpRight, ArrowDownRight } from 'lucide-vue-next'
 import { useTransactionsStore } from '../stores/transactions'
 import { useCategoriesStore } from '../stores/categories'
 import { useGoalsStore } from '../stores/goals'
@@ -149,6 +149,8 @@ async function removeEntry(e: Entry) {
               <span v-if="e.subtitle" class="tx-note">{{ e.subtitle }}</span>
             </div>
             <strong class="tx-amount" :class="e.effect >= 0 ? 'income' : 'expense'">
+              <ArrowUpRight v-if="e.effect >= 0" :size="14" class="tx-direction" aria-hidden="true" />
+              <ArrowDownRight v-else :size="14" class="tx-direction" aria-hidden="true" />
               {{ e.effect >= 0 ? '+' : '−' }}{{ formatAmount(Math.abs(e.effect)) }}
             </strong>
             <button type="button" class="icon-btn danger" aria-label="Supprimer" @click.stop="removeEntry(e)">
