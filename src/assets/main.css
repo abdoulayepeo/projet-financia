@@ -1,50 +1,103 @@
-/* ===== Palette & thèmes ===== */
-:root,
+/* ===== Design system : fondations =====
+   Trois familles de couleurs qui ne se croisent jamais : la marque (violet),
+   le sens financier (revenu/dépense/danger) et les catégories (voir
+   src/categories.ts). Aucune ne doit emprunter la teinte d'une autre. */
+
+:root {
+  /* Rampe violette signature, unique et partagée par les deux thèmes.
+     Sert aux fonds/dégradés à grande surface (texte blanc dessus) — jamais
+     comme couleur de texte directe : --primary ci-dessous reste la
+     référence pour ça, ajustée par thème pour le contraste AA. */
+  --brand-50: #f3ecfa;
+  --brand-500: #7c4a99;
+  --brand-700: #4a2166;
+  --brand-900: #2c0f45;
+  --primary-strong: var(--brand-700);
+
+  /* Danger / suppression : distinct de --expense, qui reste réservé au sens
+     « dépense » et est souvent trop clair pour porter du texte blanc en aplat. */
+  --danger: #e0294f;
+
+  /* Échelle typographique */
+  --text-display-size: 2rem; /* 32px */
+  --text-display-line: 2.5rem; /* 40px */
+  --text-title-size: 1.375rem; /* 22px */
+  --text-title-line: 1.75rem; /* 28px */
+  --text-subtitle-size: 1.0625rem; /* 17px */
+  --text-subtitle-line: 1.5rem; /* 24px */
+  --text-body-size: 0.9375rem; /* 15px */
+  --text-body-line: 1.375rem; /* 22px */
+  --text-small-size: 0.8125rem; /* 13px */
+  --text-small-line: 1.125rem; /* 18px */
+  --text-micro-size: 0.6875rem; /* 11px */
+  --text-micro-line: 0.875rem; /* 14px */
+
+  /* Spacing — grille base 4 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 48px;
+  --space-9: 64px;
+
+  /* Rayons — 3 valeurs standardisées (exception assumée : le bouton primaire
+     et quelques tuiles d'icône restent à 14px, valeur intermédiaire déjà
+     posée par le design system existant) */
+  --radius-control: 12px; /* inputs, chips */
+  --radius-card: 20px;
+  --radius-pill: 999px; /* pills, FAB, avatars */
+
+  /* Durées d'animation — 3 seulement, cf. section animations */
+  --dur-fast: 120ms;
+  --dur-standard: 200ms;
+  --dur-slow: 320ms;
+}
+
 [data-theme='dark'] {
-  --bg: #1c0a28;
+  --bg: #170923;
   --bg-tint: #24103235;
-  --surface: #2a1339;
-  --surface-2: #3a1d4d;
-  --text: #f5eef8;
-  --text-muted: #cdbadb;
+  --surface: #20102e;
+  --surface-2: #2b1640;
+  --text: #f6f1fa;
+  --text-muted: #c3b0d6;
   --border: rgba(255, 255, 255, 0.08);
   --shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
 
   --primary: #b478c2;
-  --primary-strong: #804a8a;
-  --accent: #f59e51;
-  --accent-soft: #f8d299;
+  --accent: #f6a54a;
+  --accent-soft: #f9c980;
 
-  --income: #34d399;
-  --expense: #ff8ba0;
-  /* Aplat rouge pour les fonds pleins : --expense est trop clair pour porter du texte blanc */
-  --danger-fill: #c9184a;
+  --income: #22c17b;
+  --expense: #ff6b81;
 
-  --brand-grad: linear-gradient(135deg, #804a8a 0%, #3a0353 100%);
-  --accent-grad: linear-gradient(135deg, #f8d299 0%, #f59e51 100%);
+  --brand-grad: linear-gradient(135deg, var(--brand-700) 0%, var(--brand-900) 100%);
+  --accent-grad: linear-gradient(135deg, var(--accent-soft) 0%, var(--accent) 100%);
 }
 
 [data-theme='light'] {
-  --bg: #f6f2fa;
+  --bg: #f7f3fb;
   --bg-tint: #ece2f4a0;
   --surface: #ffffff;
-  --surface-2: #f1e9f6;
-  --text: #2a1339;
-  --text-muted: #6b5878;
+  --surface-2: #f1e8f8;
+  --text: #241335;
+  --text-muted: #6c5a7c;
   --border: rgba(58, 3, 83, 0.1);
   --shadow: 0 10px 30px -14px rgba(58, 3, 83, 0.25);
 
   --primary: #804a8a;
-  --primary-strong: #3a0353;
-  --accent: #f59e51;
-  --accent-soft: #f8d299;
+  --accent: #f6a54a;
+  --accent-soft: #f9c980;
 
-  --income: #15a34a;
-  --expense: #e11d48;
-  --danger-fill: #e11d48;
+  /* Assombri par rapport à la valeur brute de l'audit (#0f9d5c : 3,5:1 sur
+     blanc, sous le seuil AA de 4,5:1) — même teinte, luminosité corrigée. */
+  --income: #0a7d49;
+  --expense: #dc2650;
 
-  --brand-grad: linear-gradient(135deg, #804a8a 0%, #3a0353 100%);
-  --accent-grad: linear-gradient(135deg, #f8d299 0%, #f59e51 100%);
+  --brand-grad: linear-gradient(135deg, var(--brand-700) 0%, var(--brand-900) 100%);
+  --accent-grad: linear-gradient(135deg, var(--accent-soft) 0%, var(--accent) 100%);
 }
 
 * {
@@ -139,21 +192,62 @@ body {
 }
 
 h1 {
-  font-size: 1.35rem;
-  font-weight: 700;
+  font-size: var(--text-title-size);
+  line-height: var(--text-title-line);
+  font-weight: 600;
   letter-spacing: -0.02em;
 }
 
 h2 {
-  font-size: 1rem;
+  font-size: var(--text-subtitle-size);
+  line-height: var(--text-subtitle-line);
   font-weight: 600;
   margin-bottom: 0.75rem;
+}
+
+/* ===== Échelle typographique (utilitaires) ===== */
+.text-display {
+  font-size: var(--text-display-size);
+  line-height: var(--text-display-line);
+  font-weight: 700;
+}
+
+.text-title {
+  font-size: var(--text-title-size);
+  line-height: var(--text-title-line);
+  font-weight: 600;
+}
+
+.text-subtitle {
+  font-size: var(--text-subtitle-size);
+  line-height: var(--text-subtitle-line);
+  font-weight: 600;
+}
+
+.text-body {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: 400;
+}
+
+.text-small {
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-line);
+  font-weight: 500;
+}
+
+.text-micro {
+  font-size: var(--text-micro-size);
+  line-height: var(--text-micro-line);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: var(--radius-card);
   padding: 1.1rem;
   box-shadow: var(--shadow);
 }
@@ -249,6 +343,7 @@ h2 {
 .stat-balance strong {
   font-size: 1.75rem;
   color: #fff;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ===== Carte héros du disponible (Accueil) : fusionne solde + revenus/dépenses ===== */
@@ -288,6 +383,7 @@ h2 {
   font-weight: 800;
   color: #fff;
   letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
 }
 
 .balance-hero-sub {
@@ -334,6 +430,7 @@ h2 {
 .balance-hero-item strong {
   font-size: 1.1rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .balance-hero-item strong.income {
@@ -346,7 +443,8 @@ h2 {
 
 .stat-label {
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: var(--text-micro-size);
+  line-height: var(--text-micro-line);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -355,6 +453,7 @@ h2 {
 .stat strong {
   font-size: 1.25rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .chart-wrap {
@@ -558,7 +657,7 @@ h2 {
   grid-template-columns: 1fr 1fr;
   background: var(--bg-tint);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   padding: 0.25rem;
   gap: 0.25rem;
 }
@@ -593,7 +692,7 @@ select {
   width: 100%;
   background: var(--bg-tint);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   color: var(--text);
   padding: 0.8rem 0.9rem;
   font-size: 1rem;
@@ -881,7 +980,7 @@ input[type='color']::-webkit-color-swatch {
 .dlg-cancel,
 .dlg-ok {
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   padding: 0.65rem 1.1rem;
   font: inherit;
   font-size: 0.92rem;
@@ -1077,6 +1176,7 @@ input[type='color']::-webkit-color-swatch {
 .goal-figures strong {
   font-size: 2rem;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
 .goal-target {
   color: var(--text-muted);
@@ -1130,7 +1230,7 @@ input[type='color']::-webkit-color-swatch {
   background: none;
   border: 1px solid var(--border);
   color: var(--expense);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   padding: 0.75rem;
   font: inherit;
   font-weight: 600;
@@ -1315,7 +1415,7 @@ input[type='color']::-webkit-color-swatch {
   gap: 0.25rem;
   background: var(--bg-tint);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   padding: 0.25rem;
 }
 .currency-toggle button {
@@ -1511,7 +1611,7 @@ input[type='color']::-webkit-color-swatch {
   background: var(--surface-2);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 0.6rem 1.1rem;
   font-size: 0.9rem;
   font-weight: 600;
@@ -1548,7 +1648,7 @@ input[type='color']::-webkit-color-swatch {
   background: color-mix(in srgb, var(--primary) 26%, transparent);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font: inherit;
   font-size: 0.82rem;
   font-weight: 700;
@@ -1563,7 +1663,7 @@ input[type='color']::-webkit-color-swatch {
 .swipe-row {
   position: relative;
   list-style: none;
-  border-radius: 18px;
+  border-radius: var(--radius-card);
   overflow: hidden;
 }
 
@@ -1577,7 +1677,7 @@ input[type='color']::-webkit-color-swatch {
   justify-content: center;
   gap: 0.15rem;
   padding-left: 18px; /* compense le débord élastique */
-  background: var(--danger-fill);
+  background: var(--danger);
   color: #fff;
   border: none;
   font: inherit;
@@ -1717,7 +1817,7 @@ input[type='color']::-webkit-color-swatch {
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
 }
 
 .onb-back:active,
@@ -1822,7 +1922,7 @@ input[type='color']::-webkit-color-swatch {
   flex-shrink: 0;
   width: 38px;
   height: 38px;
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: var(--surface-2);
   color: var(--primary);
 }
@@ -1895,7 +1995,7 @@ input[type='color']::-webkit-color-swatch {
   padding: 0.6rem 1.1rem;
   background: none;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   color: var(--text-muted);
   font: inherit;
   font-size: 0.88rem;
