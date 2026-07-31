@@ -7,6 +7,7 @@ import { useCurrency } from '../composables/currency'
 import { toast } from '../composables/toast'
 import { formatAmount } from '../lib/format'
 import Skeleton from '../components/Skeleton.vue'
+import CustomDatePicker from '../components/CustomDatePicker.vue'
 
 const router = useRouter()
 const goals = useGoalsStore()
@@ -109,7 +110,12 @@ async function addGoal() {
     <div class="cat-add-row">
       <label style="flex: 1">
         Date limite (optionnel)
-        <input v-model="deadline" type="date" />
+        <CustomDatePicker
+          v-model="deadline"
+          placeholder="Aucune"
+          clearable
+          aria-label="Date limite de l'objectif"
+        />
       </label>
       <label>
         Couleur

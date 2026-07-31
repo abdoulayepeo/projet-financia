@@ -6,6 +6,8 @@ import { useTransactionsStore } from '../stores/transactions'
 import { useCategoriesStore } from '../stores/categories'
 import { useCurrency } from '../composables/currency'
 import { toast } from '../composables/toast'
+import CustomSelect from '../components/CustomSelect.vue'
+import CustomDatePicker from '../components/CustomDatePicker.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -24,6 +26,10 @@ const recurringId = ref<number | undefined>(undefined)
 
 const categories = computed(() =>
   type.value === 'expense' ? cats.expenseCategories : cats.incomeCategories
+)
+
+const categoryOptions = computed(() =>
+  categories.value.map((c) => ({ value: c.name, label: c.name, color: c.color }))
 )
 
 onMounted(async () => {
@@ -97,15 +103,17 @@ async function submit() {
 
     <label>
       Catégorie
-      <select v-model="category" required>
-        <option value="" disabled>Choisir une catégorie…</option>
-        <option v-for="c in categories" :key="c.id" :value="c.name">{{ c.name }}</option>
-      </select>
+      <CustomSelect
+        v-model="category"
+        :options="categoryOptions"
+        placeholder="Choisir une catégorie…"
+        aria-label="Catégorie"
+      />
     </label>
 
     <label>
       Date
-      <input v-model="date" type="date" required />
+      <CustomDatePicker v-model="date" aria-label="Date de la transaction" />
     </label>
 
     <label>
