@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { TrendingUp, TrendingDown, Target, ChevronRight, TriangleAlert, Wallet } from 'lucide-vue-next'
+import {
+  TrendingUp,
+  TrendingDown,
+  Target,
+  ChevronRight,
+  TriangleAlert,
+  Wallet,
+  ArrowUpRight,
+  ArrowDownRight,
+  ReceiptText
+} from 'lucide-vue-next'
 import { useTransactionsStore } from '../stores/transactions'
 import { useBudgetsStore } from '../stores/budgets'
 import { useCategoriesStore } from '../stores/categories'
@@ -62,6 +72,10 @@ const goalRows = computed(() =>
     return { goal: g, saved, ratio: g.target > 0 ? saved / g.target : 0, reached: saved >= g.target }
   })
 )
+
+// Aperçu pour la colonne de droite en desktop (voir .dashboard-grid) — les
+// transactions sont déjà triées du plus récent au plus ancien par le store.
+const recentTransactions = computed(() => store.transactions.slice(0, 5))
 
 // ===== Anneau de focus =====
 // Met en avant automatiquement ce qui mérite le plus l'attention ce mois-ci :
@@ -158,134 +172,170 @@ function openFocus() {
 
   <!-- Vraie interface -->
   <template v-else>
-    <section class="card balance-hero">
-      <span class="stat-label">Disponible ce mois</span>
-      <strong class="balance-hero-amount">{{ formatAmount(available) }}</strong>
-      <span v-if="savedThisMonth > 0" class="balance-hero-sub">
-        dont {{ formatAmount(savedThisMonth) }} mis de côté
-      </span>
+    <div class="dashboard-grid">
+      <!-- Colonne principale : solde, focus, objectifs -->
+      <div class="dash-col">
+        <section class="card balance-hero">
+          <span class="stat-label">Disponible ce mois</span>
+          <strong class="balance-hero-amount">{{ formatAmount(available) }}</strong>
+          <span v-if="savedThisMonth > 0" class="balance-hero-sub">
+            dont {{ formatAmount(savedThisMonth) }} mis de côté
+          </span>
 
-      <div class="balance-hero-divider"></div>
-      <div class="balance-hero-split">
-        <div class="balance-hero-item">
-          <span class="balance-hero-item-label"><TrendingUp :size="12" /> Revenus</span>
-          <strong class="income">{{ formatAmount(store.totalIncome) }}</strong>
-        </div>
-        <div class="balance-hero-item">
-          <span class="balance-hero-item-label"><TrendingDown :size="12" /> Dépenses</span>
-          <strong class="expense">{{ formatAmount(store.totalExpense) }}</strong>
-        </div>
-      </div>
-    </section>
-
-    <section v-if="focus" class="card focus-card" @click="openFocus">
-      <div class="focus-ring-wrap">
-        <svg width="120" height="120" viewBox="0 0 120 120">
-          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--surface-2)" stroke-width="10" />
-          <circle
-            cx="60"
-            cy="60"
-            r="52"
-            fill="none"
-            :stroke="focus.color"
-            stroke-width="10"
-            stroke-linecap="round"
-            :stroke-dasharray="RING_CIRCUMFERENCE"
-            :stroke-dashoffset="ringOffset(focus.percent)"
-            transform="rotate(-90 60 60)"
-            class="focus-ring-bar"
-          />
-        </svg>
-        <div class="focus-ring-center">
-          <TriangleAlert v-if="focus.kind === 'over'" :size="18" :color="focus.color" />
-          <Wallet v-else-if="focus.kind === 'warn'" :size="18" :color="focus.color" />
-          <Target v-else :size="18" :color="focus.color" />
-          <strong>{{ Math.round(focus.percent) }}%</strong>
-        </div>
-      </div>
-      <div class="focus-text">
-        <span class="focus-eyebrow">
-          {{ focus.kind === 'over' ? 'Budget dépassé' : focus.kind === 'warn' ? 'Budget serré' : 'Objectif en cours' }}
-        </span>
-        <span class="focus-title">{{ focus.title }}</span>
-        <span class="focus-sub" :class="{ expense: focus.kind === 'over' }">{{ focus.subtitle }}</span>
-      </div>
-      <ChevronRight :size="18" class="focus-chevron" />
-    </section>
-
-    <section class="card">
-      <div class="card-head">
-        <h2><Target :size="16" style="vertical-align: -3px" /> Objectifs</h2>
-        <button type="button" class="link-btn" @click="router.push('/objectifs')">
-          Gérer <ChevronRight :size="15" />
-        </button>
-      </div>
-
-      <div v-if="goalRows.length" class="goal-carousel">
-        <div
-          v-for="r in goalRows"
-          :key="r.goal.id"
-          class="goal-chip-card"
-          @click="router.push(`/objectifs/${r.goal.id}`)"
-        >
-          <div class="goal-chip-head">
-            <span class="dot" :style="{ background: r.goal.color }"></span>
-            <span class="goal-chip-name">{{ r.goal.name }}</span>
+          <div class="balance-hero-divider"></div>
+          <div class="balance-hero-split">
+            <div class="balance-hero-item">
+              <span class="balance-hero-item-label"><TrendingUp :size="12" /> Revenus</span>
+              <strong class="income">{{ formatAmount(store.totalIncome) }}</strong>
+            </div>
+            <div class="balance-hero-item">
+              <span class="balance-hero-item-label"><TrendingDown :size="12" /> Dépenses</span>
+              <strong class="expense">{{ formatAmount(store.totalExpense) }}</strong>
+            </div>
           </div>
-          <div class="budget-bar goal-chip-bar">
+        </section>
+
+        <section v-if="focus" class="card focus-card" @click="openFocus">
+          <div class="focus-ring-wrap">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="var(--surface-2)" stroke-width="10" />
+              <circle
+                cx="60"
+                cy="60"
+                r="52"
+                fill="none"
+                :stroke="focus.color"
+                stroke-width="10"
+                stroke-linecap="round"
+                :stroke-dasharray="RING_CIRCUMFERENCE"
+                :stroke-dashoffset="ringOffset(focus.percent)"
+                transform="rotate(-90 60 60)"
+                class="focus-ring-bar"
+              />
+            </svg>
+            <div class="focus-ring-center">
+              <TriangleAlert v-if="focus.kind === 'over'" :size="18" :color="focus.color" />
+              <Wallet v-else-if="focus.kind === 'warn'" :size="18" :color="focus.color" />
+              <Target v-else :size="18" :color="focus.color" />
+              <strong>{{ Math.round(focus.percent) }}%</strong>
+            </div>
+          </div>
+          <div class="focus-text">
+            <span class="focus-eyebrow">
+              {{ focus.kind === 'over' ? 'Budget dépassé' : focus.kind === 'warn' ? 'Budget serré' : 'Objectif en cours' }}
+            </span>
+            <span class="focus-title">{{ focus.title }}</span>
+            <span class="focus-sub" :class="{ expense: focus.kind === 'over' }">{{ focus.subtitle }}</span>
+          </div>
+          <ChevronRight :size="18" class="focus-chevron" />
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2><Target :size="16" style="vertical-align: -3px" /> Objectifs</h2>
+            <button type="button" class="link-btn" @click="router.push('/objectifs')">
+              Gérer <ChevronRight :size="15" />
+            </button>
+          </div>
+
+          <div v-if="goalRows.length" class="goal-carousel">
             <div
-              class="budget-fill"
-              :class="{ over: r.reached }"
-              :style="{ width: Math.min(r.ratio, 1) * 100 + '%', background: r.reached ? undefined : r.goal.color }"
-            ></div>
+              v-for="r in goalRows"
+              :key="r.goal.id"
+              class="goal-chip-card"
+              @click="router.push(`/objectifs/${r.goal.id}`)"
+            >
+              <div class="goal-chip-head">
+                <span class="dot" :style="{ background: r.goal.color }"></span>
+                <span class="goal-chip-name">{{ r.goal.name }}</span>
+              </div>
+              <div class="budget-bar goal-chip-bar">
+                <div
+                  class="budget-fill"
+                  :class="{ over: r.reached }"
+                  :style="{ width: Math.min(r.ratio, 1) * 100 + '%', background: r.reached ? undefined : r.goal.color }"
+                ></div>
+              </div>
+              <span class="goal-chip-amt" :class="{ income: r.reached }">
+                {{ formatAmount(r.saved) }} / {{ formatAmount(r.goal.target) }}
+              </span>
+            </div>
           </div>
-          <span class="goal-chip-amt" :class="{ income: r.reached }">
-            {{ formatAmount(r.saved) }} / {{ formatAmount(r.goal.target) }}
-          </span>
-        </div>
+          <p v-else class="hint" style="margin: 0">
+            Épargne pour tes projets (voyage, téléphone, permis…) et suis ta progression.
+            Touche « Gérer » pour créer ton premier objectif.
+          </p>
+        </section>
       </div>
-      <p v-else class="hint" style="margin: 0">
-        Épargne pour tes projets (voyage, téléphone, permis…) et suis ta progression.
-        Touche « Gérer » pour créer ton premier objectif.
-      </p>
-    </section>
 
-    <section v-if="budgetRows.length" class="card">
-      <h2>Budgets</h2>
-      <div v-for="b in budgetRows" :key="b.category" class="budget-row">
-        <div class="budget-head">
-          <span>{{ b.category }}</span>
-          <span :class="{ expense: b.ratio > 1 }">
-            {{ formatAmount(b.spent) }} / {{ formatAmount(b.limit) }}
-          </span>
-        </div>
-        <div class="budget-bar">
-          <div
-            class="budget-fill"
-            :class="{ warn: b.ratio >= 0.8 && b.ratio <= 1, over: b.ratio > 1 }"
-            :style="{ width: Math.min(b.ratio, 1) * 100 + '%' }"
-          ></div>
-        </div>
-        <span v-if="b.ratio > 1" class="budget-alert">⚠️ Dépassé de +{{ formatAmount(b.spent - b.limit) }}</span>
+      <!-- Colonne secondaire (desktop uniquement) : budgets, répartition, historique récent -->
+      <div class="dash-col">
+        <section v-if="budgetRows.length" class="card">
+          <h2>Budgets</h2>
+          <div v-for="b in budgetRows" :key="b.category" class="budget-row">
+            <div class="budget-head">
+              <span>{{ b.category }}</span>
+              <span :class="{ expense: b.ratio > 1 }">
+                {{ formatAmount(b.spent) }} / {{ formatAmount(b.limit) }}
+              </span>
+            </div>
+            <div class="budget-bar">
+              <div
+                class="budget-fill"
+                :class="{ warn: b.ratio >= 0.8 && b.ratio <= 1, over: b.ratio > 1 }"
+                :style="{ width: Math.min(b.ratio, 1) * 100 + '%' }"
+              ></div>
+            </div>
+            <span v-if="b.ratio > 1" class="budget-alert">⚠️ Dépassé de +{{ formatAmount(b.spent - b.limit) }}</span>
+          </div>
+        </section>
+
+        <section v-if="outflow.length" class="card">
+          <h2>Où part ton argent</h2>
+          <CategoryChart :data="outflow" />
+          <ul class="cat-list">
+            <li v-for="c in outflow" :key="c.category">
+              <span class="dot" :style="{ background: c.color }"></span>
+              <span class="cat-name">{{ c.category }}</span>
+              <span class="cat-pct">{{ c.pct }} %</span>
+              <span class="cat-total">{{ formatAmount(c.total) }}</span>
+            </li>
+          </ul>
+        </section>
+
+        <p v-else class="empty">
+          Aucune dépense ni épargne ce mois-ci.<br />
+          Ajoute ta première transaction avec le bouton ＋
+        </p>
+
+        <section v-if="recentTransactions.length" class="card dash-recent">
+          <div class="card-head">
+            <h2><ReceiptText :size="16" style="vertical-align: -3px" /> Historique récent</h2>
+            <button type="button" class="link-btn" @click="router.push('/transactions')">
+              Voir tout <ChevronRight :size="15" />
+            </button>
+          </div>
+          <ul class="tx-list">
+            <li
+              v-for="t in recentTransactions"
+              :key="t.id"
+              class="card tx"
+              @click="router.push(`/modifier/${t.id}`)"
+            >
+              <span class="dot" :style="{ background: t.type === 'income' ? 'var(--income)' : categories.colorOf(t.category) }"></span>
+              <div class="tx-info">
+                <span class="tx-category">{{ t.note || t.category }}</span>
+                <span v-if="t.note" class="tx-note">{{ t.category }}</span>
+              </div>
+              <strong class="tx-amount" :class="t.type === 'income' ? 'income' : 'expense'">
+                <ArrowUpRight v-if="t.type === 'income'" :size="14" class="tx-direction" aria-hidden="true" />
+                <ArrowDownRight v-else :size="14" class="tx-direction" aria-hidden="true" />
+                {{ t.type === 'income' ? '+' : '−' }}{{ formatAmount(t.amount) }}
+              </strong>
+            </li>
+          </ul>
+        </section>
       </div>
-    </section>
-
-    <section v-if="outflow.length" class="card">
-      <h2>Où part ton argent</h2>
-      <CategoryChart :data="outflow" />
-      <ul class="cat-list">
-        <li v-for="c in outflow" :key="c.category">
-          <span class="dot" :style="{ background: c.color }"></span>
-          <span class="cat-name">{{ c.category }}</span>
-          <span class="cat-pct">{{ c.pct }} %</span>
-          <span class="cat-total">{{ formatAmount(c.total) }}</span>
-        </li>
-      </ul>
-    </section>
-
-    <p v-else class="empty">
-      Aucune dépense ni épargne ce mois-ci.<br />
-      Ajoute ta première transaction avec le bouton ＋
-    </p>
+    </div>
   </template>
 </template>

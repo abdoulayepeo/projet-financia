@@ -113,6 +113,7 @@ onMounted(() => {
       </RouterLink>
       <RouterLink to="/ajouter" class="nav-item nav-add" aria-label="Ajouter une transaction">
         <span class="nav-add-btn"><Plus :size="26" /></span>
+        <span class="nav-add-label">Ajouter</span>
       </RouterLink>
       <RouterLink to="/transactions" class="nav-item">
         <ReceiptText :size="20" />
