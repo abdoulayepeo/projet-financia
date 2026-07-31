@@ -16,6 +16,8 @@ import LogoMark from './components/LogoMark.vue'
 import AppDialog from './components/AppDialog.vue'
 import AppToast from './components/AppToast.vue'
 import SplashScreen from './components/SplashScreen.vue'
+import OnboardingFlow from './components/OnboardingFlow.vue'
+import { checkOnboarding, showOnboarding } from './composables/onboarding'
 import { useTheme } from './composables/useTheme'
 import { useCategoriesStore } from './stores/categories'
 import { useRecurringsStore } from './stores/recurrings'
@@ -59,6 +61,7 @@ onMounted(() => {
     await categories.load()
     await recurrings.applyDue()
     await transactions.load()
+    await checkOnboarding()
   })()
 })
 </script>
@@ -66,6 +69,7 @@ onMounted(() => {
 <template>
   <div class="app">
     <SplashScreen v-if="showSplash" @finished="showSplash = false" />
+    <OnboardingFlow v-if="showOnboarding && !showSplash" />
 
     <header class="app-bar">
       <div class="brand">

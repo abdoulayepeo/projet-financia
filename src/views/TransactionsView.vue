@@ -8,7 +8,8 @@ import { useGoalsStore } from '../stores/goals'
 import { formatAmount, formatDay } from '../lib/format'
 import MonthPicker from '../components/MonthPicker.vue'
 import Skeleton from '../components/Skeleton.vue'
-import { useDialog } from '../composables/dialog'
+import SwipeRow from '../components/SwipeRow.vue'
+import { toast } from '../composables/toast'
 
 interface Entry {
   key: string
@@ -27,7 +28,6 @@ const router = useRouter()
 const store = useTransactionsStore()
 const cats = useCategoriesStore()
 const goals = useGoalsStore()
-const dialog = useDialog()
 
 onMounted(() => {
   store.load()
@@ -86,16 +86,24 @@ function open(e: Entry) {
   else router.push(`/objectifs/${e.goalId}`)
 }
 
+/**
+ * Suppression immédiate, réversible via le toast : plus fluide qu'une boîte de
+ * confirmation, et sans risque puisque tout se répare en un geste.
+ */
 async function removeEntry(e: Entry) {
-  const ok = await dialog.confirm({
-    title: e.kind === 'tx' ? 'Supprimer cette transaction ?' : 'Supprimer ce mouvement d’épargne ?',
-    message: `${e.title} — ${formatAmount(Math.abs(e.effect))}`,
-    confirmLabel: 'Supprimer',
-    danger: true
-  })
-  if (!ok) return
-  if (e.kind === 'tx') await store.remove(e.refId)
-  else await goals.removeContribution(e.refId)
+  if (e.kind === 'tx') {
+    const tx = store.transactions.find((t) => t.id === e.refId)
+    if (!tx) return
+    const snapshot = { ...tx }
+    await store.remove(snapshot.id)
+    toast('Transaction supprimée', { label: 'Annuler', run: () => store.restore(snapshot) })
+  } else {
+    const contribution = goals.contributions.find((c) => c.id === e.refId)
+    if (!contribution) return
+    const snapshot = { ...contribution }
+    await goals.removeContribution(snapshot.id)
+    toast('Mouvement supprimé', { label: 'Annuler', run: () => goals.restoreContribution(snapshot) })
+  }
 }
 </script>
 
@@ -122,7 +130,7 @@ async function removeEntry(e: Entry) {
 
   <!-- Historique -->
   <template v-else>
-    <p class="hint centered">Touche une ligne pour la modifier.</p>
+    <p class="hint centered">Touche une ligne pour la modifier · glisse vers la gauche pour la supprimer.</p>
     <section v-for="[date, items] in groupedByDay" :key="date" class="day-group">
       <h2 class="day-title">
         {{ formatDay(date) }}
@@ -131,21 +139,23 @@ async function removeEntry(e: Entry) {
         </span>
       </h2>
       <ul class="tx-list">
-        <li v-for="e in items" :key="e.key" class="card tx" @click="open(e)">
-          <span class="dot" :style="{ background: e.dotColor }"></span>
-          <div class="tx-info">
-            <span class="tx-category">
-              <PiggyBank v-if="e.kind === 'save'" :size="14" class="save-ic" />{{ e.title }}
-            </span>
-            <span v-if="e.subtitle" class="tx-note">{{ e.subtitle }}</span>
+        <SwipeRow v-for="e in items" :key="e.key" @delete="removeEntry(e)">
+          <div class="card tx" @click="open(e)">
+            <span class="dot" :style="{ background: e.dotColor }"></span>
+            <div class="tx-info">
+              <span class="tx-category">
+                <PiggyBank v-if="e.kind === 'save'" :size="14" class="save-ic" />{{ e.title }}
+              </span>
+              <span v-if="e.subtitle" class="tx-note">{{ e.subtitle }}</span>
+            </div>
+            <strong class="tx-amount" :class="e.effect >= 0 ? 'income' : 'expense'">
+              {{ e.effect >= 0 ? '+' : '−' }}{{ formatAmount(Math.abs(e.effect)) }}
+            </strong>
+            <button type="button" class="icon-btn danger" aria-label="Supprimer" @click.stop="removeEntry(e)">
+              <Trash2 :size="18" />
+            </button>
           </div>
-          <strong class="tx-amount" :class="e.effect >= 0 ? 'income' : 'expense'">
-            {{ e.effect >= 0 ? '+' : '−' }}{{ formatAmount(Math.abs(e.effect)) }}
-          </strong>
-          <button type="button" class="icon-btn danger" aria-label="Supprimer" @click.stop="removeEntry(e)">
-            <Trash2 :size="18" />
-          </button>
-        </li>
+        </SwipeRow>
       </ul>
     </section>
   </template>
