@@ -18,10 +18,14 @@ const chartData = computed(() => ({
   ]
 }))
 
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
 const options = {
   responsive: true,
   maintainAspectRatio: false,
   cutout: '65%',
+  // Tracé progressif du donut au chargement plutôt qu'une apparition instantanée.
+  animation: reduceMotion ? false : ({ duration: 500, easing: 'easeInOutQuart' } as const),
   plugins: { legend: { display: false }, tooltip: { enabled: false } }
 } as const
 </script>

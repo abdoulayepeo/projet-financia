@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, useId } from 'vue'
 import { ChevronDown } from 'lucide-vue-next'
 
 const props = withDefaults(
@@ -8,6 +8,7 @@ const props = withDefaults(
 )
 
 const isOpen = ref(props.open)
+const panelId = useId()
 </script>
 
 <template>
@@ -16,6 +17,7 @@ const isOpen = ref(props.open)
       type="button"
       class="collapsible-head"
       :aria-expanded="isOpen"
+      :aria-controls="panelId"
       @click="isOpen = !isOpen"
     >
       <div class="collapsible-title">
@@ -25,7 +27,7 @@ const isOpen = ref(props.open)
       <ChevronDown :size="20" class="collapsible-chevron" />
     </button>
     <Transition name="collapse">
-      <div v-if="isOpen" class="collapsible-body">
+      <div v-show="isOpen" :id="panelId" class="collapsible-body">
         <p v-if="hint" class="hint">{{ hint }}</p>
         <slot />
       </div>
