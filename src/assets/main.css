@@ -18,6 +18,14 @@
      « dépense » et est souvent trop clair pour porter du texte blanc en aplat. */
   --danger: #e0294f;
 
+  /* Variantes theme-invariantes de --income/--expense : la carte héros (fond
+     --brand-grad) est toujours sombre, même en thème clair — les teintes
+     sémantiques du thème clair n'y passent pas toujours l'AA (vérifié :
+     jusqu'à 2,4:1 sur la zone claire du dégradé). Ces deux valeurs y restent
+     lisibles dans les deux thèmes. */
+  --income-on-dark: #7ef0c2;
+  --expense-on-dark: #ffb0c1;
+
   /* Échelle typographique */
   --text-display-size: 2rem; /* 32px */
   --text-display-line: 2.5rem; /* 40px */
@@ -111,7 +119,7 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100dvh;
-  transition: background 0.3s ease, color 0.3s ease;
+  transition: background var(--dur-slow) ease-in-out, color var(--dur-slow) ease-in-out;
 }
 
 .app {
@@ -164,7 +172,7 @@ body {
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.2s ease;
+  transition: transform var(--dur-fast) ease-in-out, background var(--dur-standard) ease-in-out;
 }
 
 .theme-toggle:active {
@@ -289,7 +297,7 @@ h2 {
   width: 2.25rem;
   height: 2.25rem;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--dur-fast) ease-in-out;
 }
 
 .month-picker button:active {
@@ -434,11 +442,11 @@ h2 {
 }
 
 .balance-hero-item strong.income {
-  color: #7ef0c2;
+  color: var(--income-on-dark);
 }
 
 .balance-hero-item strong.expense {
-  color: #ffb0c1;
+  color: var(--expense-on-dark);
 }
 
 .stat-label {
@@ -585,7 +593,7 @@ h2 {
   gap: 0.75rem;
   padding: 0.8rem 1rem;
   cursor: pointer;
-  transition: transform 0.12s ease, border-color 0.2s ease;
+  transition: transform var(--dur-fast) ease-in-out, border-color var(--dur-standard) ease-in-out;
 }
 
 .tx:active {
@@ -643,7 +651,7 @@ h2 {
   cursor: pointer;
   padding: 0.3rem;
   border-radius: 10px;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color var(--dur-fast) ease-in-out, background var(--dur-fast) ease-in-out;
 }
 
 .icon-btn:active {
@@ -679,7 +687,7 @@ h2 {
   border-radius: 9px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--dur-standard) ease-in-out;
 }
 
 .type-toggle button.active {
@@ -705,7 +713,7 @@ input {
   padding: 0.8rem 0.9rem;
   font-size: 1rem;
   font-family: inherit;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition: border-color var(--dur-standard) ease-in-out, box-shadow var(--dur-standard) ease-in-out, background var(--dur-standard) ease-in-out;
 }
 
 input::placeholder {
@@ -760,7 +768,7 @@ input[type='color']::-webkit-color-swatch {
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.12s ease, filter 0.2s ease;
+  transition: transform var(--dur-fast) ease-in-out, filter var(--dur-standard) ease-in-out;
 }
 
 .submit-btn:active {
@@ -880,7 +888,7 @@ input[type='color']::-webkit-color-swatch {
   text-decoration: none;
   font-size: 0.68rem;
   font-weight: 500;
-  transition: color 0.2s ease;
+  transition: color var(--dur-standard) ease-in-out;
 }
 
 .nav-item.router-link-active {
@@ -900,11 +908,18 @@ input[type='color']::-webkit-color-swatch {
   background: var(--accent-grad);
   color: #3a0353;
   box-shadow: 0 6px 18px -4px rgba(245, 158, 81, 0.55);
-  transition: transform 0.15s ease;
+  transition: transform var(--dur-fast) ease-in-out;
 }
 
+/* Légère rotation au clic : renforce le sentiment d'ouverture du formulaire. */
 .nav-add:active .nav-add-btn {
-  transform: scale(0.92);
+  transform: scale(0.92) rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-add-btn {
+    transition: none;
+  }
 }
 
 /* ===== Modale ===== */
@@ -964,7 +979,7 @@ input[type='color']::-webkit-color-swatch {
   font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.12s ease, filter 0.2s ease;
+  transition: transform var(--dur-fast) ease-in-out, filter var(--dur-standard) ease-in-out;
 }
 
 .dlg-cancel {
@@ -989,14 +1004,14 @@ input[type='color']::-webkit-color-swatch {
 
 .dlg-enter-active,
 .dlg-leave-active {
-  transition: opacity 0.18s ease;
+  transition: opacity var(--dur-standard) ease-in-out;
 }
 .dlg-enter-from,
 .dlg-leave-to {
   opacity: 0;
 }
 .dlg-enter-active .dialog-card {
-  transition: transform 0.2s ease;
+  transition: transform var(--dur-standard) ease-in-out;
 }
 .dlg-enter-from .dialog-card {
   transform: translateY(10px) scale(0.97);
@@ -1080,7 +1095,7 @@ input[type='color']::-webkit-color-swatch {
 
 .goal-card {
   cursor: pointer;
-  transition: transform 0.12s ease, border-color 0.2s ease;
+  transition: transform var(--dur-fast) ease-in-out, border-color var(--dur-standard) ease-in-out;
 }
 .goal-card:active {
   transform: scale(0.99);
@@ -1221,7 +1236,7 @@ input[type='color']::-webkit-color-swatch {
   align-items: center;
   gap: 1rem;
   cursor: pointer;
-  transition: transform 0.12s ease, border-color 0.2s ease;
+  transition: transform var(--dur-fast) ease-in-out, border-color var(--dur-standard) ease-in-out;
 }
 
 .focus-card:active {
@@ -1324,7 +1339,7 @@ input[type='color']::-webkit-color-swatch {
   flex-direction: column;
   gap: 0.55rem;
   cursor: pointer;
-  transition: transform 0.12s ease, border-color 0.2s ease;
+  transition: transform var(--dur-fast) ease-in-out, border-color var(--dur-standard) ease-in-out;
 }
 
 .goal-chip-card:active {
@@ -1406,11 +1421,12 @@ input[type='color']::-webkit-color-swatch {
   font-weight: 600;
   font-size: 0.8rem;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: background var(--dur-standard) ease-in-out, color var(--dur-standard) ease-in-out;
 }
 .currency-toggle button.active {
   background: var(--accent-grad);
   color: #3a0353;
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--primary-strong) 45%, transparent);
 }
 
 /* ===== Section repliable ===== */
@@ -1433,7 +1449,7 @@ input[type='color']::-webkit-color-swatch {
   cursor: pointer;
   text-align: left;
   min-height: 56px;
-  transition: background 0.15s ease;
+  transition: background var(--dur-fast) ease-in-out;
 }
 
 .collapsible-head:hover,
@@ -1457,7 +1473,7 @@ input[type='color']::-webkit-color-swatch {
 
 .collapsible-chevron {
   color: var(--text-muted);
-  transition: transform 0.25s ease;
+  transition: transform var(--dur-standard) ease-in-out;
 }
 
 .collapsible.open .collapsible-chevron {
@@ -1475,7 +1491,7 @@ input[type='color']::-webkit-color-swatch {
 
 .collapse-enter-active,
 .collapse-leave-active {
-  transition: max-height 0.28s ease, opacity 0.2s ease;
+  transition: max-height var(--dur-slow) ease-in-out, opacity var(--dur-standard) ease-in-out;
   max-height: 2400px;
 }
 .collapse-enter-from,
@@ -1600,7 +1616,7 @@ input[type='color']::-webkit-color-swatch {
 }
 .toast-enter-active,
 .toast-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition: opacity var(--dur-standard) ease-in-out, transform var(--dur-standard) ease-in-out;
 }
 .toast-enter-from,
 .toast-leave-to {
@@ -1817,7 +1833,7 @@ input[type='color']::-webkit-color-swatch {
   height: 7px;
   border-radius: 50%;
   background: var(--surface-2);
-  transition: background 0.25s ease, transform 0.25s ease;
+  transition: background var(--dur-standard) ease-in-out, transform var(--dur-standard) ease-in-out;
 }
 
 .onb-dot.on {
@@ -1924,7 +1940,7 @@ input[type='color']::-webkit-color-swatch {
   color: var(--text);
   font: inherit;
   cursor: pointer;
-  transition: border-color 0.18s ease, background 0.18s ease;
+  transition: border-color var(--dur-standard) ease-in-out, background var(--dur-standard) ease-in-out;
 }
 
 .onb-choice.active {
@@ -2021,7 +2037,7 @@ input[type='color']::-webkit-color-swatch {
   font-family: inherit;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition: border-color var(--dur-standard) ease-in-out, box-shadow var(--dur-standard) ease-in-out, background var(--dur-standard) ease-in-out;
 }
 
 .select-trigger:hover {
@@ -2050,7 +2066,7 @@ input[type='color']::-webkit-color-swatch {
 .select-chevron {
   flex-shrink: 0;
   color: var(--text-muted);
-  transition: transform 0.2s ease;
+  transition: transform var(--dur-standard) ease-in-out;
 }
 
 .select-trigger.is-open .select-chevron {
@@ -2078,7 +2094,7 @@ input[type='color']::-webkit-color-swatch {
   padding: 0.6rem 0.75rem;
   border-radius: var(--radius-control);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--dur-fast) ease-in-out;
 }
 
 .select-option:hover,
@@ -2159,7 +2175,7 @@ input[type='color']::-webkit-color-swatch {
   font-size: 0.9rem;
   font-variant-numeric: tabular-nums;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--dur-fast) ease-in-out;
 }
 
 .date-cell:hover {
@@ -2197,7 +2213,7 @@ input[type='color']::-webkit-color-swatch {
 
 .dlg-enter-active .select-menu,
 .dlg-enter-active .date-card {
-  transition: transform 0.2s ease;
+  transition: transform var(--dur-standard) ease-in-out;
 }
 .dlg-enter-from .select-menu,
 .dlg-enter-from .date-card {
@@ -2275,7 +2291,7 @@ input[type='color']::-webkit-color-swatch {
     font-weight: 600;
     padding: 0.7rem 0.9rem;
     border-radius: var(--radius-control);
-    transition: background 0.15s ease, color 0.2s ease;
+    transition: background var(--dur-fast) ease-in-out, color var(--dur-standard) ease-in-out;
   }
 
   .nav-item:hover {

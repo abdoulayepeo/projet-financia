@@ -38,8 +38,8 @@ function animateContent() {
   if (reduceMotion) return
   gsap.from('.content > *', {
     opacity: 0,
-    y: 14,
-    duration: 0.35,
+    y: 8,
+    duration: 0.32,
     stagger: 0.05,
     ease: 'power2.out',
     overwrite: true,
